@@ -6,6 +6,12 @@ from scipy.spatial.distance import cdist
 import sys
 from time import time
 
+
+def info(msg, t):
+    print('%s, with time %f' % (msg, t))
+    sys.stdout.flush()
+
+
 def strip(x):
     return x.strip()
 
@@ -56,9 +62,7 @@ with open('../data/polarity_review_seg.txt') as seg_file:
 
 vec_review_25w = reviews2vec_review(review_pol)
 delta = time() - start
-print('finish reading polarity_review, with time %f' % delta)
-sys.stdout.flush()
-
+info('finish reading polarity_review', delta)
 
 start = time()
 review_info = {}
@@ -68,36 +72,45 @@ with open('../data/aspect_review_seg.txt') as seg_file:
     for i in range(num):
         id_, review, pos, neg = map(strip, lines[4*i : 4*(i+1)])
         id_ = int(id_)
-        pos = pos.split()
-        neg = neg.split()
+        # pos = pos.split()
+        # neg = neg.split()
         review_info[review] = (pos, neg)
 
 vec_review_200 = reviews2vec_review(review_info)
 delta = time() - start
-print('finish reading aspect_review, with time %f' % delta)
-sys.stdout.flush()
+info('finish reading aspect_review', delta)
 
+vecs25w = list(vec_review_25w.keys())
+vecs200 = list(vec_review_200.keys())
+dim = len(vecs25w), len(vecs200)
+start = time()
+cosine = cdist(vecs25w, vecs200, metric='cosine')
+delta = time() - start
+info('finish creating cosine matrix', delta)
 
-def closest(A, B):
-    dim = len(B)
-    mat = cdist(A, B, metric='cosine')
-    idx = np.argmin(mat)
-    x, y = idx // dim, idx % dim
-    return x, y, mat[x, y]
-
-
-# TODO: move sentence from polarity review to aspect review, and assign the aspect to the sentence
-rounds = 10
-for i in range(rounds):
-    # start = time()
-    vecs_25w = list(vec_review_25w.keys())
-    vecs_200 = list(vec_review_200.keys())
-    x, y, dist = closest(vecs_25w, vecs_200)
-    # delta = time() - start
-    print(vec_review_25w[vecs_25w[x]])
-    print(vec_review_200[vecs_200[y]])
-    # print(dist)
-    # print('time %f' % delta)
-    sys.stdout.flush()
-
-    del vec_review_25w[vecs_25w[x]]
+similar = cosine.argsort(1)[:, 0]
+# sort[i]: most similar to least similar aspect_reviews to i-th polarity_review
+start = time()
+with open('../data/polarity_review_aspect.txt', 'w') as out_file:
+    for i, j in enumerate(similar):
+        vec_i, vec_j = vecs25w[i], vecs200[j]
+        review_i, review_j = vec_review_25w[vec_i], vec_review_200[vec_j]
+        pos, neg = review_info[review_j]
+        
+        # TODO: decide which aspects to take
+        # maybe dont take all, or also take opposite ones
+        if review_pol[review_i] > 0:
+            if pos != '':
+                out_file.write(review_i + '\n')
+                out_file.write(pos + '\n')
+                out_file.write('\n')
+                out_file.write('%.6f\n' % cosine[i, j])
+        else:
+            if neg != '':
+                out_file.write(review_i + '\n')
+                out_file.write('\n')
+                out_file.write(neg + '\n')
+                out_file.write('%.6f\n' % cosine[i, j])
+                
+delta = time() - start
+info('finish output file', delta)
