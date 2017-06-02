@@ -50,8 +50,10 @@ def onehot(n, i):
 
 def build_model(verbose=True):
     model = Sequential()
+    # TODO: Bidirectional
     model.add(LSTM(units=NUM_UNITS, input_shape = (MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT))
     model.add(Dense(NUM_CLASSES, activation='sigmoid'))
+    # TODO: RMSprop
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     if verbose:
         model.summary()
@@ -82,18 +84,10 @@ def train():
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
-        X_train, X_test = X[cnt//10:], X[:cnt//10]
-        y_train, y_test = y[cnt//10:], y[:cnt//10]
-        
-        X_train = sequence.pad_sequences(X_train, maxlen=MAX_REVIEW_LENGTH)
-        X_test = sequence.pad_sequences(X_test, maxlen=MAX_REVIEW_LENGTH)
 
     with SimpleTimer('Train', end_in_new_line=True):
         model = build_model(verbose=True)
-        model.fit(X_train, y_train, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, validation_data=(X_test, y_test))
-        loss, acc = model.evaluate(X_test, y_test)
-    print('Accuracy after %d epochs: %.2f' % (NUM_EPOCHS, acc))
-    sys.stdout.flush()
+        model.fit(X, y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE)
 
     with SimpleTimer('Save model', end_in_new_line=True):
         if not os.path.exists(SAVE_PATH):
@@ -111,12 +105,12 @@ def train():
         
 
 def test(model_filename, weights_filename):
-    with SimpleTimer('Load model'):
+    with SimpleTimer('Load model', end_in_new_line=False):
         with open(model_filename) as model_file:
             model = model_from_yaml(model_file.read())
         model.load_weights(weights_filename)
 
-    with SimpleTimer('Test'):
+    with SimpleTimer('Test', end_in_new_line=True):
         with open('../data/test_seg.txt') as test_file:
             lines = test_file.readlines()
         num_lines = len(lines)
@@ -125,27 +119,28 @@ def test(model_filename, weights_filename):
         if not os.path.exists(PREDICT_PATH):
             os.makedirs(PREDICT_PATH)
         pred_path = os.path.join(PREDICT_PATH, 'submission_%s.csv' % time)
-        with open(pred_path, 'w') as output_file:
-            output_file.write('Id,Relation\n')
-            
-            for line in lines[1:]:
-                id_, clause1, clause2 = line.strip().split(',')
-                clause1 = clause1.split('|')
-                clause2 = clause2.split('|')
-                words = clause1 + clause2
-                embed = [embedding[w] for w in words if w in embedding]
-                if len(embed) > 0:
-                    X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                    X[0, :len(embed)] = np.array(embed)
-                else:
-                    print('len(embed) == 0. Exiting')
-                    exit(0)
+        with SimpleTimer('Writing predictions to %s' % pred_path, end_in_new_line=False):
+            with open(pred_path, 'w') as output_file:
+                output_file.write('Id,Relation\n')
                 
-                y = model.predict(X)
-                y = np.argmax(y)
-                y = int2relation[y]
-                
-                output_file.write('%s,%s\n' % (id_, y))
+                for line in lines[1:]:
+                    id_, clause1, clause2 = line.strip().split(',')
+                    clause1 = clause1.split('|')
+                    clause2 = clause2.split('|')
+                    words = clause1 + clause2
+                    embed = [embedding[w] for w in words if w in embedding]
+                    if len(embed) > 0:
+                        X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                        X[0, :len(embed)] = np.array(embed)
+                    else:
+                        print('len(embed) == 0. Exiting')
+                        exit(0)
+                    
+                    y = model.predict(X)
+                    y = np.argmax(y)
+                    y = int2relation[y]
+                    
+                    output_file.write('%s,%s\n' % (id_, y))
                 
 
 def get_config():
