@@ -34,6 +34,7 @@ DROPOUT = 0.2
 RECURRENT_DROPOUT = 0.2
 NUM_EPOCHS = 3
 NUM_BATCHES = 64
+VERBOSE = 2
 SAVE_PATH = '../models'
 PREDICT_PATH = '../predictions'
 
@@ -79,6 +80,8 @@ def train():
                 cnt += 1
         
         X, y = X[:cnt], y[:cnt]
+        p = np.random.permutation(cnt)
+        X, y = X[p], y[p]
         X_train, X_test = X[cnt//10:], X[:cnt//10]
         y_train, y_test = y[cnt//10:], y[:cnt//10]
         
@@ -87,7 +90,7 @@ def train():
 
     with SimpleTimer('Train', end_in_new_line=True):
         model = build_model(verbose=True)
-        model.fit(X_train, y_train, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=1, validation_data=(X_test, y_test))
+        model.fit(X_train, y_train, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, validation_data=(X_test, y_test))
         loss, acc = model.evaluate(X_test, y_test)
     print('Accuracy after %d epochs: %.2f' % (NUM_EPOCHS, acc))
     sys.stdout.flush()
