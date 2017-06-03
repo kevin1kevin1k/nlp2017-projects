@@ -77,7 +77,7 @@ def train():
             words = clause1 + clause2
             embed = [embedding[w] for w in words if w in embedding]
             if len(embed) > 0:
-                X[cnt, :len(embed)] = np.array(embed)
+                X[cnt, -len(embed):] = np.array(embed)
                 y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
                 cnt += 1
         
@@ -131,7 +131,7 @@ def test(model_filename, weights_filename):
                     embed = [embedding[w] for w in words if w in embedding]
                     if len(embed) > 0:
                         X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                        X[0, :len(embed)] = np.array(embed)
+                        X[0, -len(embed):] = np.array(embed)
                     else:
                         print('len(embed) == 0. Exiting')
                         exit(0)
