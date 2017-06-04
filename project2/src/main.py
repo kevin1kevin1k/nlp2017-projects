@@ -37,15 +37,12 @@ def get_config():
     parser.add_argument('action', nargs='+')
     parser.add_argument('-m', '--model-path')
     parser.add_argument('-w', '--weights-path')
-    parser.add_argument('-e', '--epochs')
     args = parser.parse_args()
     return args
 
 
 if __name__ == '__main__':
     config = get_config()
-    if config.epochs:
-        NUM_EPOCHS = int(config.epochs)
     if 'train' in config.action:
         model_path, weights_path = train()
     if 'test' in config.action:

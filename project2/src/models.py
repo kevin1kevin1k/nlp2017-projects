@@ -24,6 +24,7 @@ RECURRENT_DROPOUT = 0.2
 NUM_EPOCHS = 1
 NUM_BATCHES = 64
 VERBOSE = 2
+USE_CLASS_WEIGHT = False
 
 DATA_PATH = '../data'
 DATA_SUFFIX = '_seg.txt'
@@ -77,7 +78,7 @@ class _BaseClass(object):
 
 class SimpleRNN(_BaseClass):
     def __init__(self, model_path=None, weights_path=None):
-        self.X, self.y = self._build_data()
+        self.X, self.y, self.class_cnt = self._build_data()
 
         if model_path and weights_path:
             with open(model_path) as model_file:
@@ -95,6 +96,7 @@ class SimpleRNN(_BaseClass):
         y = np.zeros([num_lines, NUM_CLASSES])
         
         cnt = 0
+        class_cnt = [0] * 4
         for line in lines[1:]:
             id_, clause1, clause2, relation = line.strip().split(',')
             clause1 = clause1.split('|')
@@ -105,12 +107,13 @@ class SimpleRNN(_BaseClass):
                 X[cnt, -len(embed):] = np.array(embed)
                 y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
                 cnt += 1
+                class_cnt[relation2int[relation]] += 1
         
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
         
-        return X, y
+        return X, y, class_cnt
 
     def _build_model(self, verbose=True):
         model = Sequential()
@@ -122,7 +125,13 @@ class SimpleRNN(_BaseClass):
         return model
 
     def fit(self):
-        self.model.fit(self.X, self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE)
+        inv_freq = [1.0/c for c in self.class_cnt]
+        sum_ = sum(inv_freq)
+        if USE_CLASS_WEIGHT:
+            class_weight = {c : w/sum_ for c, w in enumerate(inv_freq)}
+        else:
+            class_weight = None
+        self.model.fit(self.X, self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight)
     
     def predict(self):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
@@ -149,16 +158,16 @@ class SimpleRNN(_BaseClass):
                         print('Warning: len(embedi) == 0 for some i = 1, 2.')
                         # exit(0)
                     
-                    y = self.model.predict(X)
-                    y = np.argmax(y)
-                    y = int2relation[y]
+                    y_prob = self.model.predict(X)
+                    y = np.argmax(y_prob)
+                    relation = int2relation[y]
                     
-                    output_file.write('%s,%s\n' % (id_, y))
+                    output_file.write('%s,%s\n' % (id_, relation))
 
 
 class ConcatRNN(_BaseClass):
     def __init__(self, model_path=None, weights_path=None):
-        self.X1, self.X2, self.y = self._build_data()
+        self.X1, self.X2, self.y, self.class_cnt = self._build_data()
 
         if model_path and weights_path:
             with open(model_path) as model_file:
@@ -177,6 +186,7 @@ class ConcatRNN(_BaseClass):
         y = np.zeros([num_lines, NUM_CLASSES])
         
         cnt = 0
+        class_cnt = [0] * 4
         for line in lines[1:]:
             id_, clause1, clause2, relation = line.strip().split(',')
             clause1 = clause1.split('|')
@@ -191,12 +201,13 @@ class ConcatRNN(_BaseClass):
                 X2[cnt, -len(embed2):] = np.array(embed2)
                 y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
                 cnt += 1
+                class_cnt[relation2int[relation]] += 1
         
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, y = X1[p], X2[p], y[p]
         
-        return X1, X2, y
+        return X1, X2, y, class_cnt
 
     def _build_model(self, verbose=True):
         input1 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
@@ -212,7 +223,13 @@ class ConcatRNN(_BaseClass):
         return model
 
     def fit(self):
-        self.model.fit([self.X1, self.X2], self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE)
+        inv_freq = [1.0/c for c in self.class_cnt]
+        sum_ = sum(inv_freq)
+        if USE_CLASS_WEIGHT:
+            class_weight = {c : w/sum_ for c, w in enumerate(inv_freq)}
+        else:
+            class_weight = None
+        self.model.fit([self.X1, self.X2], self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight)
     
     def predict(self):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
@@ -243,8 +260,8 @@ class ConcatRNN(_BaseClass):
                         print('Warning: len(embedi) == 0 for some i = 1, 2.')
                         # exit(0)
                     
-                    y = self.model.predict([X1, X2])
-                    y = np.argmax(y)
-                    y = int2relation[y]
+                    y_prob = self.model.predict([X1, X2])
+                    y = np.argmax(y_prob)
+                    relation = int2relation[y]
                     
-                    output_file.write('%s,%s\n' % (id_, y))
+                    output_file.write('%s,%s\n' % (id_, relation))
