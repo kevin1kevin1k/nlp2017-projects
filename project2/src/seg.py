@@ -11,7 +11,6 @@ s2t = langconv.Converter('zh-hant')
 
 def seg(line):
     s_list = t2s.convert(line.decode('utf-8'))
-    # TODO: cut_all=True (more segment outputs, but may be noisy)
     s = ' '.join(jieba.cut(s_list, cut_all=False))
     t = s2t.convert(s).encode('utf-8')
     t_list = t.split(' ')
@@ -31,7 +30,6 @@ def get_config():
 
 if __name__ == '__main__':
     config = get_config()
-    print config
     
     with open(config.input_path, 'r') as input_f, open(config.output_path, 'w') as output_f:
         for i, line in enumerate(input_f):
@@ -47,6 +45,9 @@ if __name__ == '__main__':
             seg1, seg2 = seg(clause1), seg(clause2)
             
             # TODO: filter out stop words
+            
+            seg1 = seg1.strip('|')
+            seg2 = seg2.strip('|')
             
             # for s in (seg1, seg2):
             #     if s.startswith('|') or s.endswith('|'):
