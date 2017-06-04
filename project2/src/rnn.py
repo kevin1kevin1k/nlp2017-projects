@@ -121,6 +121,8 @@ def build_data_for_concat_model():
         clause2 = clause2.split('|')
         embed1 = [embedding[w] for w in clause1 if w in embedding]
         embed2 = [embedding[w] for w in clause2 if w in embedding]
+        embed1.reverse()
+        embed2.reverse()
         
         if len(embed1) > 0 and len(embed2) > 0:
             X1[cnt, -len(embed1):] = np.array(embed1)
@@ -190,6 +192,9 @@ def test(model_filename, weights_filename):
                     # embed = [embedding[w] for w in words if w in embedding]
                     embed1 = [embedding[w] for w in clause1 if w in embedding]
                     embed2 = [embedding[w] for w in clause2 if w in embedding]
+                    embed1.reverse()
+                    embed2.reverse()
+
                     # if len(embed) > 0:
                     if len(embed1) > 0 and len(embed2) > 0:
                         # X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
