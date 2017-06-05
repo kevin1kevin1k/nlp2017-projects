@@ -10,6 +10,7 @@ from bistiming import SimpleTimer
 from gensim.models import KeyedVectors
 # from keras.layers.embeddings import Embedding
 from keras.models import model_from_yaml, Model
+from keras.callbacks import Callback
 
 np.random.seed(666)
 embedding = KeyedVectors.load('../data/ASBC_embedding.bin')
@@ -21,7 +22,7 @@ NUM_CLASSES = 4
 NUM_UNITS = 100
 DROPOUT = 0.2
 RECURRENT_DROPOUT = 0.2
-NUM_EPOCHS = 1
+NUM_EPOCHS = 100
 NUM_BATCHES = 64
 VERBOSE = 2
 USE_CLASS_WEIGHT = False
@@ -41,6 +42,25 @@ def onehot(n, i):
     x = np.zeros(n)
     x[i] = 1
     return x
+
+
+class EarlyStoppingByAccuracy(Callback):
+    def __init__(self, monitor='acc', threshold=0.999, verbose=1):
+        super(Callback, self).__init__()
+        self.monitor = monitor
+        self.threshold = threshold
+        self.verbose = verbose
+    
+    def on_epoch_end(self, epoch, logs={}):
+        current = logs.get('acc')
+        if current is None:
+            print('Warning: acc is None')
+            exit(1)
+        
+        if current >= self.threshold:
+            if self.verbose > 0:
+                print('Early stopping: accuracy = %f at epoch %d' % (current, epoch))
+            self.model.stop_training = True
 
 
 class _BaseClass(object):
@@ -112,6 +132,7 @@ class SimpleRNN(_BaseClass):
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
+        self.NUM_BATCHES = cnt
         
         return X, y, class_cnt
 
@@ -119,7 +140,7 @@ class SimpleRNN(_BaseClass):
         model = Sequential()
         model.add(LSTM(units=NUM_UNITS, input_shape=(MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT))
         model.add(Dense(NUM_CLASSES, activation='sigmoid'))
-        model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         if verbose:
             model.summary()
         return model
@@ -131,7 +152,7 @@ class SimpleRNN(_BaseClass):
             class_weight = {c : w/sum_ for c, w in enumerate(inv_freq)}
         else:
             class_weight = None
-        self.model.fit(self.X, self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight)
+        self.model.fit(self.X, self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight, callbacks=[EarlyStoppingByAccuracy()])
     
     def predict(self):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
@@ -206,6 +227,7 @@ class ConcatRNN(_BaseClass):
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, y = X1[p], X2[p], y[p]
+        self.NUM_BATCHES = cnt
         
         return X1, X2, y, class_cnt
 
@@ -217,7 +239,7 @@ class ConcatRNN(_BaseClass):
         concat = keras.layers.concatenate([lstm1_out, lstm2_out])
         output = Dense(NUM_CLASSES, activation='sigmoid')(concat)
         model = Model(inputs=[input1, input2], outputs=[output])
-        model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
         if verbose:
             model.summary()
         return model
@@ -229,7 +251,7 @@ class ConcatRNN(_BaseClass):
             class_weight = {c : w/sum_ for c, w in enumerate(inv_freq)}
         else:
             class_weight = None
-        self.model.fit([self.X1, self.X2], self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight)
+        self.model.fit([self.X1, self.X2], self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight, callbacks=[EarlyStoppingByAccuracy()])
     
     def predict(self):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
@@ -257,7 +279,7 @@ class ConcatRNN(_BaseClass):
                         X1[0, -len(embed1):] = np.array(embed1)
                         X2[0, -len(embed2):] = np.array(embed2)
                     else:
-                        print('Warning: len(embedi) == 0 for some i = 1, 2.')
+                        print('Warning: for id = %s, len(embedi) == 0 for some i = 1, 2.' % id_)
                         # exit(0)
                     
                     y_prob = self.model.predict([X1, X2])
