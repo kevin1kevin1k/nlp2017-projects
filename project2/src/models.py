@@ -23,7 +23,7 @@ NUM_UNITS = 100
 DROPOUT = 0.2
 RECURRENT_DROPOUT = 0.2
 NUM_EPOCHS = 100
-NUM_BATCHES = 64
+NUM_BATCHES = 64 # 0 means batch training
 VERBOSE = 2
 USE_CLASS_WEIGHT = False
 
@@ -132,7 +132,8 @@ class SimpleRNN(_BaseClass):
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
-        self.NUM_BATCHES = cnt
+        if NUM_BATCHES == 0:
+            NUM_BATCHES = cnt
         
         return X, y, class_cnt
 
@@ -227,7 +228,8 @@ class ConcatRNN(_BaseClass):
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, y = X1[p], X2[p], y[p]
-        self.NUM_BATCHES = cnt
+        if NUM_BATCHES == 0:
+            NUM_BATCHES = cnt
         
         return X1, X2, y, class_cnt
 
