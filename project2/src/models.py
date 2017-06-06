@@ -132,6 +132,8 @@ class SimpleRNN(_BaseClass):
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
+        
+        global NUM_BATCHES
         if NUM_BATCHES == 0:
             NUM_BATCHES = cnt
         
@@ -228,6 +230,8 @@ class ConcatRNN(_BaseClass):
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, y = X1[p], X2[p], y[p]
+        
+        global NUM_BATCHES
         if NUM_BATCHES == 0:
             NUM_BATCHES = cnt
         
