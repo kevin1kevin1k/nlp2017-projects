@@ -26,9 +26,11 @@ NUM_EPOCHS = 100
 NUM_BATCHES = 64 # 0 means batch training
 VERBOSE = 2
 USE_CLASS_WEIGHT = False
+OPTIMIZER = 'rmsprop'
 
 DATA_PATH = '../data'
-DATA_SUFFIX = '_seg.txt'
+DATA_SUFFIX = '_seg_CKIP.txt'
+SPLIT_SYMBOL = ' '
 TRAIN_PATH = os.path.join(DATA_PATH, 'train' + DATA_SUFFIX)
 TEST_PATH = os.path.join(DATA_PATH, 'test' + DATA_SUFFIX)
 SAVE_PATH = '../models'
@@ -63,9 +65,50 @@ class EarlyStoppingByAccuracy(Callback):
             self.model.stop_training = True
 
 
+class Lang(object):
+    def __init__(self):
+        self.word2index = {}
+        self.word2count = {}
+        self.index2word = {0: 'START', 1: 'END', 2: 'UNK'}
+        self.num_words = 3
+        self.read_files()
+    
+    def read_files(self):
+        for filename in [TRAIN_PATH, TEST_PATH]:
+            with open(filename) as f:
+                for i, line in enumerate(f):
+                    if i == 0:
+                        continue
+                    
+                    clauses = line.strip().split(',')[1:3]
+                    for clause in clauses:
+                        self.add_sentence(clause)
+
+    def add_sentence(self, sentence):
+        if isinstance(sentence, list):
+            for word in sentence:
+                self.add_word(word)
+        elif isinstance(sentence, str):
+            for word in sentence.split():
+                self.add_word(word)
+        else:
+            print('Warning: sentence of type %s not supported for add_sentence.' % str(type(sentence)))
+            exit(1)
+    
+    def add_word(self, word):
+        if word in self.word2index:
+            self.word2count[word] += 1
+        else:
+            index = self.num_words
+            self.word2index[word] = index
+            self.word2count[word] = 1
+            self.index2word[index] = word
+            self.num_words += 1
+
+
 class _BaseClass(object):
     def __init__(self):
-        pass
+        self.lang = Lang()
     
     def _build_data(self):
         pass
@@ -98,6 +141,7 @@ class _BaseClass(object):
 
 class SimpleRNN(_BaseClass):
     def __init__(self, model_path=None, weights_path=None):
+        super(SimpleRNN, self).__init__()
         self.X, self.y, self.class_cnt = self._build_data()
 
         if model_path and weights_path:
@@ -119,8 +163,8 @@ class SimpleRNN(_BaseClass):
         class_cnt = [0] * 4
         for line in lines[1:]:
             id_, clause1, clause2, relation = line.strip().split(',')
-            clause1 = clause1.split('|')
-            clause2 = clause2.split('|')
+            clause1 = clause1.split(SPLIT_SYMBOL)
+            clause2 = clause2.split(SPLIT_SYMBOL)
             words = clause1 + clause2
             embed = [embedding[w] for w in words if w in embedding]
             if len(embed) > 0:
@@ -143,7 +187,7 @@ class SimpleRNN(_BaseClass):
         model = Sequential()
         model.add(LSTM(units=NUM_UNITS, input_shape=(MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT))
         model.add(Dense(NUM_CLASSES, activation='sigmoid'))
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
         if verbose:
             model.summary()
         return model
@@ -170,8 +214,8 @@ class SimpleRNN(_BaseClass):
                 lines = test_file.readlines()
                 for line in lines[1:]:
                     id_, clause1, clause2 = line.strip().split(',')
-                    clause1 = clause1.split('|')
-                    clause2 = clause2.split('|')
+                    clause1 = clause1.split(SPLIT_SYMBOL)
+                    clause2 = clause2.split(SPLIT_SYMBOL)
                     words = clause1 + clause2
                     embed = [embedding[w] for w in words if w in embedding]
 
@@ -191,6 +235,7 @@ class SimpleRNN(_BaseClass):
 
 class ConcatRNN(_BaseClass):
     def __init__(self, model_path=None, weights_path=None):
+        super(ConcatRNN, self).__init__()
         self.X1, self.X2, self.y, self.class_cnt = self._build_data()
 
         if model_path and weights_path:
@@ -213,19 +258,21 @@ class ConcatRNN(_BaseClass):
         class_cnt = [0] * 4
         for line in lines[1:]:
             id_, clause1, clause2, relation = line.strip().split(',')
-            clause1 = clause1.split('|')
-            clause2 = clause2.split('|')
+            clause1 = clause1.split(SPLIT_SYMBOL)
+            clause2 = clause2.split(SPLIT_SYMBOL)
             embed1 = [embedding[w] for w in clause1 if w in embedding]
             embed2 = [embedding[w] for w in clause2 if w in embedding]
             embed1.reverse()
             embed2.reverse()
             
-            if len(embed1) > 0 and len(embed2) > 0:
-                X1[cnt, -len(embed1):] = np.array(embed1)
-                X2[cnt, -len(embed2):] = np.array(embed2)
-                y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
-                cnt += 1
-                class_cnt[relation2int[relation]] += 1
+            if len(embed1) > 0:
+                X1[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed1):] = np.array(embed1)
+            if len(embed2) > 0:
+                X2[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed2):] = np.array(embed2)
+            
+            y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
+            cnt += 1
+            class_cnt[relation2int[relation]] += 1
         
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
@@ -245,7 +292,7 @@ class ConcatRNN(_BaseClass):
         concat = keras.layers.concatenate([lstm1_out, lstm2_out])
         output = Dense(NUM_CLASSES, activation='sigmoid')(concat)
         model = Model(inputs=[input1, input2], outputs=[output])
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
         if verbose:
             model.summary()
         return model
@@ -272,21 +319,19 @@ class ConcatRNN(_BaseClass):
                 lines = test_file.readlines()
                 for line in lines[1:]:
                     id_, clause1, clause2 = line.strip().split(',')
-                    clause1 = clause1.split('|')
-                    clause2 = clause2.split('|')
+                    clause1 = clause1.split(SPLIT_SYMBOL)
+                    clause2 = clause2.split(SPLIT_SYMBOL)
                     embed1 = [embedding[w] for w in clause1 if w in embedding]
                     embed2 = [embedding[w] for w in clause2 if w in embedding]
                     embed1.reverse()
                     embed2.reverse()
 
-                    if len(embed1) > 0 and len(embed2) > 0:
-                        X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                        X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                    X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                    X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                    if len(embed1) > 0:
                         X1[0, -len(embed1):] = np.array(embed1)
+                    if len(embed2) > 0:
                         X2[0, -len(embed2):] = np.array(embed2)
-                    else:
-                        print('Warning: for id = %s, len(embedi) == 0 for some i = 1, 2.' % id_)
-                        # exit(0)
                     
                     y_prob = self.model.predict([X1, X2])
                     y = np.argmax(y_prob)

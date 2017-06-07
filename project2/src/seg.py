@@ -1,9 +1,11 @@
-#!/usr/bin/env python2
+# encoding: utf-8
 
 import jieba
 from translation import langconv
 import argparse
 import re
+import CKIPParserClient
+import os
 
 t2s = langconv.Converter('zh-hans')
 s2t = langconv.Converter('zh-hant')
@@ -16,6 +18,43 @@ def seg(line):
     t_list = t.split(' ')
     multi_pipes = '|'.join(t_list)
     return re.sub(r'\|+', '|', multi_pipes)
+
+
+def seg_CKIP(s, verbose=False):
+    options = {
+        'divide': 300,
+        'encoding': 'UTF-8',
+        'pos': False,
+        'server': '140.109.19.130',
+        'port': 8002,
+        'xml': False,
+    }
+
+    input_filename = 'tmp_input.txt'
+    output_filename = 'tmp_output.txt'
+    uwfile = None
+
+    with open(input_filename, 'w') as input_f:
+        input_f.write(s.decode('utf-8').encode('big5'))
+
+    srv = CKIPParserClient.CkipSrv('ckip', 'ckip', server=options['server'], port=options['port'])
+    srv.segFile(input_filename, output_filename, uwfile, options)
+
+    whole = ''
+    with open(output_filename, 'r') as output_f:
+        for line in output_f:
+            result = line.decode('big5').encode('utf-8')
+            result = re.sub(r'([a-zA-Z0-9.:_#\[\]\(\)\|]|\s|•...)+', ' ', result)
+            if verbose:
+                print result.strip(),
+            whole += result.strip() + ' '
+        if verbose:
+            print
+    
+    os.remove(input_filename)
+    os.remove(output_filename)
+    
+    return whole.strip()
 
 
 def get_config():
@@ -42,7 +81,11 @@ if __name__ == '__main__':
             else:
                 id_, clause1, clause2 = line.strip().split(',')
             
-            seg1, seg2 = seg(clause1), seg(clause2)
+            try:
+                seg1, seg2 = seg_CKIP(clause1, verbose=True), seg_CKIP(clause2, verbose=True)
+            except:
+                print 'Error: %s,%s,%s' % (id_, clause1, clause2)
+                continue
             
             # TODO: filter out stop words
             
@@ -57,5 +100,6 @@ if __name__ == '__main__':
                 output_f.write(','.join([id_, seg1, seg2, relation]) + '\n')
             else:
                 output_f.write(','.join([id_, seg1, seg2]) + '\n')
-
+            
+            print 'line %d done' % i
     
