@@ -52,7 +52,7 @@ if __name__ == '__main__':
             model_path, weights_path = config.model_path, config.weights_path
         else:
             print('No model file specified for testing. Exiting.')
-            exit()
+            exit(1)
         
         test(model_path, weights_path)
     

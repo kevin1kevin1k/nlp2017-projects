@@ -20,8 +20,8 @@ MAX_SINGLE_REVIEW_LENGTH = 17 # single clause
 EMBEDDING_VECTOR_LENGTH = 300
 NUM_CLASSES = 4
 NUM_UNITS = 100
-DROPOUT = 0.2
-RECURRENT_DROPOUT = 0.2
+DROPOUT = 0.3
+RECURRENT_DROPOUT = 0.3
 NUM_EPOCHS = 100
 NUM_BATCHES = 64 # 0 means batch training
 VERBOSE = 2
@@ -89,7 +89,7 @@ class Lang(object):
             for word in sentence:
                 self.add_word(word)
         elif isinstance(sentence, str):
-            for word in sentence.split():
+            for word in sentence.split(SPLIT_SYMBOL):
                 self.add_word(word)
         else:
             print('Warning: sentence of type %s not supported for add_sentence.' % str(type(sentence)))
@@ -135,7 +135,7 @@ class _BaseClass(object):
 
         return model_path, weights_path
             
-    def predict(self, X):
+    def predict(self):
         pass
     
 
@@ -219,12 +219,11 @@ class SimpleRNN(_BaseClass):
                     words = clause1 + clause2
                     embed = [embedding[w] for w in words if w in embedding]
 
+                    X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                     if len(embed) > 0:
-                        X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                         X[0, -len(embed):] = np.array(embed)
                     else:
-                        print('Warning: len(embedi) == 0 for some i = 1, 2.')
-                        # exit(0)
+                        print('Warning: for id = %s, len(embedi) == 0 for some i = 1, 2.' % id_)
                     
                     y_prob = self.model.predict(X)
                     y = np.argmax(y_prob)
