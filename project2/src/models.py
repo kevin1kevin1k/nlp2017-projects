@@ -22,8 +22,8 @@ NUM_CLASSES = 4
 NUM_UNITS = 100
 DROPOUT = 0.3
 RECURRENT_DROPOUT = 0.3
-NUM_EPOCHS = 100
-NUM_BATCHES = 64 # 0 means batch training
+NUM_EPOCHS = 500
+NUM_BATCHES = 0 # 0 means batch training
 VERBOSE = 2
 USE_CLASS_WEIGHT = False
 OPTIMIZER = 'rmsprop'
@@ -73,6 +73,14 @@ class Lang(object):
         self.num_words = 3
         self.read_files()
     
+        # count2word = {c:w for w, c in self.word2count.items()}
+        # counts = list(reversed(sorted(count2word.keys())))
+        # for c in counts[:150]:
+        #     print(count2word[c], c)
+        # exit(1)
+        # import ipdb; ipdb.set_trace()
+        # print('ok')
+
     def read_files(self):
         for filename in [TRAIN_PATH, TEST_PATH]:
             with open(filename) as f:
