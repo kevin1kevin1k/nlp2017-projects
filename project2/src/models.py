@@ -76,6 +76,7 @@ class Lang(object):
         self.top_words = []
         self.topword2index = {}
         self.num_words = 3
+        self.NUM_TOP_WORDS = 0
         self.read_files()
         self.count_words()
     
@@ -117,8 +118,6 @@ class Lang(object):
             self.num_words += 1
     
     def count_words(self):
-        global NUM_TOP_WORDS
-        
         count2words = self.w2c_to_c2w(self.word2count)
         counts = list(reversed(sorted(count2words.keys())))
         for c in counts[:NUM_FILTER_WORDS]:
@@ -137,7 +136,7 @@ class Lang(object):
             self.top_words += candidates[:NUM_TOP_WORDS]
         
         self.top_words = list(set(self.top_words))
-        NUM_TOP_WORDS = len(self.top_words)
+        self.NUM_TOP_WORDS = len(self.top_words)
         self.topword2index = {w:i+1 for i, w in enumerate(self.top_words)}
     
     def w2c_to_c2w(self, w2c):
@@ -402,7 +401,7 @@ class ConcatCountRNN(_BaseClass):
         num_lines = len(lines)
         X1 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         X2 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-        X3 = np.zeros([num_lines, 1 + NUM_TOP_WORDS*NUM_CLASSES])
+        X3 = np.zeros([num_lines, 1 + self.lang.NUM_TOP_WORDS*NUM_CLASSES])
         y = np.zeros([num_lines, NUM_CLASSES])
         
         cnt = 0
@@ -441,7 +440,7 @@ class ConcatCountRNN(_BaseClass):
     def _build_model(self, verbose=True):
         input1 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
         input2 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
-        input3 = Input(shape=(1 + NUM_TOP_WORDS*NUM_CLASSES,), dtype='float32')
+        input3 = Input(shape=(1 + self.lang.NUM_TOP_WORDS*NUM_CLASSES,), dtype='float32')
         lstm1_out = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(input1)
         lstm2_out = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(input2)
         concat_lstm = keras.layers.concatenate([lstm1_out, lstm2_out])
@@ -484,7 +483,7 @@ class ConcatCountRNN(_BaseClass):
 
                     X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                     X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                    X3 = np.zeros([1, 1 + NUM_TOP_WORDS*NUM_CLASSES])
+                    X3 = np.zeros([1, 1 + self.lang.NUM_TOP_WORDS*NUM_CLASSES])
                     
                     if len(embed1) > 0:
                         X1[0, -len(embed1):] = np.array(embed1)
