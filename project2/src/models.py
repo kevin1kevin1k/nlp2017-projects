@@ -117,6 +117,8 @@ class Lang(object):
             self.num_words += 1
     
     def count_words(self):
+        global NUM_TOP_WORDS
+        
         count2words = self.w2c_to_c2w(self.word2count)
         counts = list(reversed(sorted(count2words.keys())))
         for c in counts[:NUM_FILTER_WORDS]:
@@ -133,7 +135,9 @@ class Lang(object):
             for c in counts[:NUM_TOP_WORDS]:
                 candidates += count2words[c]
             self.top_words += candidates[:NUM_TOP_WORDS]
-            
+        
+        self.top_words = list(set(self.top_words))
+        NUM_TOP_WORDS = len(self.top_words)
         self.topword2index = {w:i+1 for i, w in enumerate(self.top_words)}
     
     def w2c_to_c2w(self, w2c):
