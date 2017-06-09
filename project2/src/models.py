@@ -27,6 +27,8 @@ NUM_BATCHES = 64 # 0 means batch training
 VERBOSE = 2
 USE_CLASS_WEIGHT = False
 OPTIMIZER = 'rmsprop'
+NUM_TOP_WORDS = 10
+NUM_FILTER_WORDS = 30
 
 DATA_PATH = '../data'
 DATA_SUFFIX = '_seg_CKIP.txt'
@@ -70,8 +72,12 @@ class Lang(object):
         self.word2index = {}
         self.word2count = {}
         self.index2word = {0: 'START', 1: 'END', 2: 'UNK'}
+        self.relation2word2count = {}
+        self.top_words = []
+        self.topword2index = {}
         self.num_words = 3
         self.read_files()
+        self.count_words()
     
     def read_files(self):
         for filename in [TRAIN_PATH, TEST_PATH]:
@@ -82,19 +88,24 @@ class Lang(object):
                     
                     clauses = line.strip().split(',')[1:3]
                     for clause in clauses:
-                        self.add_sentence(clause)
+                        if filename == TRAIN_PATH:
+                            relation = line.strip().split(',')[3]
+                            self.add_sentence(clause, relation)
+                        else:
+                            self.add_sentence(clause)
+                    
+    def add_sentence(self, sentence, relation=None):
+        for word in sentence.split(SPLIT_SYMBOL):
+            self.add_word(word)
+            
+            if relation is not None:
+                if relation not in self.relation2word2count:
+                    self.relation2word2count[relation] = {}
+                for word in sentence.split(SPLIT_SYMBOL):
+                    if word not in self.relation2word2count[relation]:
+                        self.relation2word2count[relation][word] = 0
+                    self.relation2word2count[relation][word] += 1
 
-    def add_sentence(self, sentence):
-        if isinstance(sentence, list):
-            for word in sentence:
-                self.add_word(word)
-        elif isinstance(sentence, str):
-            for word in sentence.split(SPLIT_SYMBOL):
-                self.add_word(word)
-        else:
-            print('Warning: sentence of type %s not supported for add_sentence.' % str(type(sentence)))
-            exit(1)
-    
     def add_word(self, word):
         if word in self.word2index:
             self.word2count[word] += 1
@@ -104,7 +115,36 @@ class Lang(object):
             self.word2count[word] = 1
             self.index2word[index] = word
             self.num_words += 1
-
+    
+    def count_words(self):
+        count2words = self.w2c_to_c2w(self.word2count)
+        counts = list(reversed(sorted(count2words.keys())))
+        for c in counts[:NUM_FILTER_WORDS]:
+            for word in count2words[c]:
+                for relation in self.relation2word2count:
+                    if word in self.relation2word2count[relation]:
+                        del self.relation2word2count[relation][word]
+        
+        for relation, word2count in self.relation2word2count.items():
+            count2words = self.w2c_to_c2w(word2count)
+            counts = list(reversed(sorted(count2words.keys())))
+            
+            candidates = []
+            for c in counts[:NUM_TOP_WORDS]:
+                candidates += count2words[c]
+            self.top_words += candidates[:NUM_TOP_WORDS]
+            
+        self.topword2index = {w:i+1 for i, w in enumerate(self.top_words)}
+    
+    def w2c_to_c2w(self, w2c):
+        c2w = {}
+        for w, c in w2c.items():
+            if c not in c2w:
+                c2w[c] = []
+            c2w[c].append(w)
+        return c2w
+    
+    
 
 class _BaseClass(object):
     def __init__(self):
@@ -333,6 +373,124 @@ class ConcatRNN(_BaseClass):
                         X2[0, -len(embed2):] = np.array(embed2)
                     
                     y_prob = self.model.predict([X1, X2])
+                    y = np.argmax(y_prob)
+                    relation = int2relation[y]
+                    
+                    output_file.write('%s,%s\n' % (id_, relation))
+
+
+class ConcatCountRNN(_BaseClass):
+    def __init__(self, model_path=None, weights_path=None):
+        super(ConcatCountRNN, self).__init__()
+        self.X1, self.X2, self.X3, self.y, self.class_cnt = self._build_data()
+
+        if model_path and weights_path:
+            with open(model_path) as model_file:
+                self.model = model_from_yaml(model_file.read())
+            self.model.load_weights(weights_path)
+        else:
+            self.model = self._build_model(verbose=True)
+        
+    def _build_data(self):
+        with open(TRAIN_PATH) as train_file:
+            lines = train_file.readlines()
+        
+        num_lines = len(lines)
+        X1 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+        X2 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+        X3 = np.zeros([num_lines, 1 + NUM_TOP_WORDS*NUM_CLASSES])
+        y = np.zeros([num_lines, NUM_CLASSES])
+        
+        cnt = 0
+        class_cnt = [0] * 4
+        for line in lines[1:]:
+            id_, clause1, clause2, relation = line.strip().split(',')
+            clause1 = clause1.split(SPLIT_SYMBOL)
+            clause2 = clause2.split(SPLIT_SYMBOL)
+            embed1 = [embedding[w] for w in clause1 if w in embedding]
+            embed2 = [embedding[w] for w in clause2 if w in embedding]
+            embed1.reverse()
+            embed2.reverse()
+            
+            if len(embed1) > 0:
+                X1[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed1):] = np.array(embed1)
+            if len(embed2) > 0:
+                X2[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed2):] = np.array(embed2)
+            
+            for word in clause1 + clause2:
+                X3[cnt, self.lang.topword2index.get(word, 0)] += 1
+            
+            y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
+            cnt += 1
+            class_cnt[relation2int[relation]] += 1
+        
+        X1, X2, X3, y = X1[:cnt], X2[:cnt], X3[:cnt], y[:cnt]
+        p = np.random.permutation(cnt)
+        X1, X2, X3, y = X1[p], X2[p], X3[p], y[p]
+        
+        global NUM_BATCHES
+        if NUM_BATCHES == 0:
+            NUM_BATCHES = cnt
+        
+        return X1, X2, X3, y, class_cnt
+
+    def _build_model(self, verbose=True):
+        input1 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
+        input2 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
+        input3 = Input(shape=(1 + NUM_TOP_WORDS*NUM_CLASSES,), dtype='float32')
+        lstm1_out = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(input1)
+        lstm2_out = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(input2)
+        concat_lstm = keras.layers.concatenate([lstm1_out, lstm2_out])
+        concat = keras.layers.concatenate([concat_lstm, input3])
+        output = Dense(NUM_CLASSES, activation='sigmoid')(concat)
+        model = Model(inputs=[input1, input2, input3], outputs=[output])
+        model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
+        if verbose:
+            model.summary()
+        return model
+
+    def fit(self):
+        inv_freq = [1.0/c for c in self.class_cnt]
+        sum_ = sum(inv_freq)
+        if USE_CLASS_WEIGHT:
+            class_weight = {c : w/sum_ for c, w in enumerate(inv_freq)}
+        else:
+            class_weight = None
+        self.model.fit([self.X1, self.X2, self.X3], self.y, batch_size=NUM_BATCHES, epochs=NUM_EPOCHS, verbose=VERBOSE, class_weight=class_weight, callbacks=[EarlyStoppingByAccuracy()])
+    
+    def predict(self):
+        time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
+        if not os.path.exists(PREDICT_PATH):
+            os.makedirs(PREDICT_PATH)
+        pred_path = os.path.join(PREDICT_PATH, 'submission_%s.csv' % time)
+
+        with SimpleTimer('Writing predictions to %s' % pred_path, end_in_new_line=False):
+            with open(TEST_PATH) as test_file, open(pred_path, 'w') as output_file:
+                output_file.write('Id,Relation\n')
+                
+                lines = test_file.readlines()
+                for line in lines[1:]:
+                    id_, clause1, clause2 = line.strip().split(',')
+                    clause1 = clause1.split(SPLIT_SYMBOL)
+                    clause2 = clause2.split(SPLIT_SYMBOL)
+                    embed1 = [embedding[w] for w in clause1 if w in embedding]
+                    embed2 = [embedding[w] for w in clause2 if w in embedding]
+                    embed1.reverse()
+                    embed2.reverse()
+
+                    X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                    X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
+                    X3 = np.zeros([1, 1 + NUM_TOP_WORDS*NUM_CLASSES])
+                    
+                    if len(embed1) > 0:
+                        X1[0, -len(embed1):] = np.array(embed1)
+                    if len(embed2) > 0:
+                        X2[0, -len(embed2):] = np.array(embed2)
+                    
+                    for word in clause1 + clause2:
+                        X3[0, self.lang.topword2index.get(word, 0)] += 1
+
+                    y_prob = self.model.predict([X1, X2, X3])
                     y = np.argmax(y_prob)
                     relation = int2relation[y]
                     

@@ -6,7 +6,7 @@ import os
 import gc
 from bistiming import SimpleTimer
 import argparse
-from models import SimpleRNN, ConcatRNN
+from models import SimpleRNN, ConcatRNN, ConcatCountRNN
 
 # set up GPU usage
 config = tf.ConfigProto()
@@ -14,7 +14,7 @@ config.gpu_options.per_process_gpu_memory_fraction = 0.8
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 set_session(tf.Session(config=config))
 
-MODEL = ConcatRNN
+MODEL = ConcatCountRNN
 
 def train():
     with SimpleTimer('Build data and model', end_in_new_line=False):
