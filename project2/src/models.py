@@ -74,6 +74,11 @@ class Lang(object):
         self.index2word = {0: 'START', 1: 'END', 2: 'UNK'}
         self.relation2word2count = {}
         self.top_words = []
+        # self.top_words = [
+        #     '並', '但', '再', '卻', '將', '後', '從', '時', '當', '而',
+        #     '不過', '之前', '之後', '以後', '但是', '儘管', '因此', '因為', '如果', '如此',
+        #     '已經', '所以', '時候', '最後', '為了', '然後', '由於', '終於', '開始', '雖然'
+        # ]
         self.topword2index = {}
         self.num_words = 3
         self.NUM_TOP_WORDS = 0
