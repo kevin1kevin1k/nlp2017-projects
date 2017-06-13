@@ -6,7 +6,7 @@ import os
 import gc
 from bistiming import SimpleTimer
 import argparse
-from models import SimpleRNN, ConcatRNN, ConcatCountRNN
+from models import SimpleRNN, ConcatRNN, ConcatCountRNN, ConvConcatRNN
 
 # set up GPU usage
 config = tf.ConfigProto()

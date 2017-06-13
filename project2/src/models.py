@@ -3,7 +3,8 @@
 import numpy as np
 import keras
 from keras.models import Sequential
-from keras.layers import Dense, LSTM, Input
+from keras.layers import Dense, LSTM, Input, Reshape
+from keras.layers.convolutional import Conv1D, MaxPooling1D
 import os
 import arrow
 from bistiming import SimpleTimer
@@ -503,3 +504,25 @@ class ConcatCountRNN(_BaseClass):
                     relation = int2relation[y]
                     
                     output_file.write('%s,%s\n' % (id_, relation))
+
+
+class ConvConcatRNN(ConcatRNN):
+    def __init__(self, model_path=None, weights_path=None):
+        super(ConvConcatRNN, self).__init__()
+
+    def _build_model(self, verbose=True):
+        input1 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
+        input2 = Input(shape=(MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH), dtype='float32')
+        conv1 = Conv1D(filters=32, kernel_size=3, padding='same', activation='relu')(input1)
+        conv2 = Conv1D(filters=32, kernel_size=3, padding='same', activation='relu')(input2)
+        pool1 = MaxPooling1D(pool_size=2)(conv1)
+        pool2 = MaxPooling1D(pool_size=2)(conv2)
+        lstm1 = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(pool1)
+        lstm2 = LSTM(units=NUM_UNITS, dropout=DROPOUT, recurrent_dropout=RECURRENT_DROPOUT)(pool2)
+        concat = keras.layers.concatenate([lstm1, lstm2])
+        output = Dense(NUM_CLASSES, activation='sigmoid')(concat)
+        model = Model(inputs=[input1, input2], outputs=[output])
+        model.compile(optimizer=OPTIMIZER, loss='categorical_crossentropy', metrics=['accuracy'])
+        if verbose:
+            model.summary()
+        return model
