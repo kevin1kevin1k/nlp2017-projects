@@ -1,0 +1,143 @@
+...Build data and model done in 0:00:00.775887
+...Train
+Epoch 1/100
+4s - loss: 0.8734 - acc: 0.6510
+Epoch 2/100
+4s - loss: 0.6167 - acc: 0.7733
+Epoch 3/100
+4s - loss: 0.5285 - acc: 0.8059
+Epoch 4/100
+4s - loss: 0.4608 - acc: 0.8306
+Epoch 5/100
+4s - loss: 0.4057 - acc: 0.8509
+Epoch 6/100
+4s - loss: 0.3564 - acc: 0.8691
+Epoch 7/100
+4s - loss: 0.3043 - acc: 0.8925
+Epoch 8/100
+4s - loss: 0.2567 - acc: 0.9102
+Epoch 9/100
+4s - loss: 0.2182 - acc: 0.9258
+Epoch 10/100
+4s - loss: 0.1846 - acc: 0.9425
+Epoch 11/100
+4s - loss: 0.1548 - acc: 0.9542
+Epoch 12/100
+4s - loss: 0.1275 - acc: 0.9647
+Epoch 13/100
+4s - loss: 0.1063 - acc: 0.9725
+Epoch 14/100
+4s - loss: 0.0899 - acc: 0.9792
+Epoch 15/100
+4s - loss: 0.0802 - acc: 0.9801
+Epoch 16/100
+4s - loss: 0.0639 - acc: 0.9869
+Epoch 17/100
+4s - loss: 0.0570 - acc: 0.9889
+Epoch 18/100
+4s - loss: 0.0500 - acc: 0.9922
+Epoch 19/100
+4s - loss: 0.0447 - acc: 0.9913
+Epoch 20/100
+4s - loss: 0.0388 - acc: 0.9936
+Epoch 21/100
+4s - loss: 0.0361 - acc: 0.9942
+Epoch 22/100
+4s - loss: 0.0307 - acc: 0.9954
+Epoch 23/100
+4s - loss: 0.0310 - acc: 0.9953
+Epoch 24/100
+4s - loss: 0.0270 - acc: 0.9959
+Epoch 25/100
+4s - loss: 0.0264 - acc: 0.9960
+Epoch 26/100
+4s - loss: 0.0200 - acc: 0.9974
+Epoch 27/100
+4s - loss: 0.0211 - acc: 0.9960
+Epoch 28/100
+4s - loss: 0.0193 - acc: 0.9968
+Epoch 29/100
+4s - loss: 0.0175 - acc: 0.9973
+Epoch 30/100
+4s - loss: 0.0166 - acc: 0.9974
+Epoch 31/100
+4s - loss: 0.0154 - acc: 0.9971
+Epoch 32/100
+4s - loss: 0.0156 - acc: 0.9971
+Epoch 33/100
+4s - loss: 0.0171 - acc: 0.9956
+Epoch 34/100
+4s - loss: 0.0151 - acc: 0.9974
+Epoch 35/100
+4s - loss: 0.0128 - acc: 0.9974
+Epoch 36/100
+4s - loss: 0.0121 - acc: 0.9979
+Epoch 37/100
+4s - loss: 0.0104 - acc: 0.9976
+Epoch 38/100
+4s - loss: 0.0105 - acc: 0.9982
+Epoch 39/100
+4s - loss: 0.0109 - acc: 0.9979
+Epoch 40/100
+4s - loss: 0.0109 - acc: 0.9982
+Epoch 41/100
+4s - loss: 0.0097 - acc: 0.9976
+Epoch 42/100
+4s - loss: 0.0110 - acc: 0.9976
+Epoch 43/100
+4s - loss: 0.0102 - acc: 0.9977
+Epoch 44/100
+4s - loss: 0.0125 - acc: 0.9974
+Epoch 45/100
+4s - loss: 0.0097 - acc: 0.9977
+Epoch 46/100
+4s - loss: 0.0098 - acc: 0.9977
+Epoch 47/100
+4s - loss: 0.0098 - acc: 0.9976
+Epoch 48/100
+4s - loss: 0.0082 - acc: 0.9980
+Epoch 49/100
+4s - loss: 0.0106 - acc: 0.9968
+Epoch 50/100
+4s - loss: 0.0118 - acc: 0.9964
+Epoch 51/100
+4s - loss: 0.0103 - acc: 0.9973
+Epoch 52/100
+4s - loss: 0.0091 - acc: 0.9979
+Epoch 53/100
+4s - loss: 0.0078 - acc: 0.9980
+Epoch 54/100
+4s - loss: 0.0079 - acc: 0.9980
+Epoch 55/100
+4s - loss: 0.0072 - acc: 0.9979
+Epoch 56/100
+4s - loss: 0.0092 - acc: 0.9979
+Epoch 57/100
+4s - loss: 0.0071 - acc: 0.9980
+Epoch 58/100
+4s - loss: 0.0068 - acc: 0.9985
+Epoch 59/100
+4s - loss: 0.0069 - acc: 0.9982
+Epoch 60/100
+4s - loss: 0.0069 - acc: 0.9983
+Epoch 61/100
+4s - loss: 0.0055 - acc: 0.9982
+Epoch 62/100
+4s - loss: 0.0058 - acc: 0.9985
+Epoch 63/100
+4s - loss: 0.0062 - acc: 0.9983
+Epoch 64/100
+Early stopping: accuracy = 0.999240 at epoch 63
+4s - loss: 0.0050 - acc: 0.9992
+...Train done in 0:04:48.122948
+...Writing model to ../models/ConcatRNN_model_20170608_01:25:28.yaml done in 0:00:00.000116
+...Writing weights to ../models/ConcatRNN_weights_20170608_01:25:28.h5 done in 0:00:00.025131
+...Test
+...Load model done in 0:00:00.890533
+...Writing predictions to ../predictions/submission_20170608_01:25:29.csvWarning: for id = 6697, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 6783, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7014, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7222, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7607, len(embedi) == 0 for some i = 1, 2.
+ done in 0:00:01.613303
+...Test done in 0:00:02.504262

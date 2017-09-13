@@ -1,0 +1,222 @@
+...Build data done in 0:00:00.247077
+...Train
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+lstm_1 (LSTM)                (None, 100)               160400    
+_________________________________________________________________
+dense_1 (Dense)              (None, 4)                 404       
+=================================================================
+Total params: 160,804
+Trainable params: 160,804
+Non-trainable params: 0
+_________________________________________________________________
+Epoch 1/100
+4s - loss: 0.9970 - acc: 0.6017
+Epoch 2/100
+4s - loss: 0.7758 - acc: 0.7110
+Epoch 3/100
+4s - loss: 0.6809 - acc: 0.7419
+Epoch 4/100
+4s - loss: 0.6301 - acc: 0.7590
+Epoch 5/100
+3s - loss: 0.5834 - acc: 0.7782
+Epoch 6/100
+3s - loss: 0.5463 - acc: 0.7955
+Epoch 7/100
+3s - loss: 0.5092 - acc: 0.8079
+Epoch 8/100
+4s - loss: 0.4756 - acc: 0.8208
+Epoch 9/100
+4s - loss: 0.4314 - acc: 0.8353
+Epoch 10/100
+3s - loss: 0.4080 - acc: 0.8476
+Epoch 11/100
+3s - loss: 0.3792 - acc: 0.8567
+Epoch 12/100
+3s - loss: 0.3423 - acc: 0.8742
+Epoch 13/100
+3s - loss: 0.3133 - acc: 0.8879
+Epoch 14/100
+3s - loss: 0.2911 - acc: 0.8936
+Epoch 15/100
+3s - loss: 0.2618 - acc: 0.9067
+Epoch 16/100
+3s - loss: 0.2364 - acc: 0.9156
+Epoch 17/100
+3s - loss: 0.2185 - acc: 0.9237
+Epoch 18/100
+3s - loss: 0.1954 - acc: 0.9316
+Epoch 19/100
+3s - loss: 0.1793 - acc: 0.9403
+Epoch 20/100
+4s - loss: 0.1726 - acc: 0.9447
+Epoch 21/100
+4s - loss: 0.1567 - acc: 0.9501
+Epoch 22/100
+4s - loss: 0.1519 - acc: 0.9531
+Epoch 23/100
+4s - loss: 0.1347 - acc: 0.9584
+Epoch 24/100
+3s - loss: 0.1236 - acc: 0.9623
+Epoch 25/100
+3s - loss: 0.1121 - acc: 0.9684
+Epoch 26/100
+3s - loss: 0.1074 - acc: 0.9671
+Epoch 27/100
+3s - loss: 0.0942 - acc: 0.9732
+Epoch 28/100
+3s - loss: 0.0914 - acc: 0.9729
+Epoch 29/100
+3s - loss: 0.0869 - acc: 0.9754
+Epoch 30/100
+3s - loss: 0.0811 - acc: 0.9780
+Epoch 31/100
+4s - loss: 0.0791 - acc: 0.9769
+Epoch 32/100
+4s - loss: 0.0798 - acc: 0.9759
+Epoch 33/100
+3s - loss: 0.0716 - acc: 0.9788
+Epoch 34/100
+3s - loss: 0.0717 - acc: 0.9794
+Epoch 35/100
+3s - loss: 0.0619 - acc: 0.9831
+Epoch 36/100
+3s - loss: 0.0567 - acc: 0.9846
+Epoch 37/100
+3s - loss: 0.0498 - acc: 0.9870
+Epoch 38/100
+3s - loss: 0.0571 - acc: 0.9830
+Epoch 39/100
+3s - loss: 0.0540 - acc: 0.9842
+Epoch 40/100
+3s - loss: 0.0515 - acc: 0.9864
+Epoch 41/100
+3s - loss: 0.0543 - acc: 0.9848
+Epoch 42/100
+3s - loss: 0.0517 - acc: 0.9846
+Epoch 43/100
+3s - loss: 0.0487 - acc: 0.9866
+Epoch 44/100
+3s - loss: 0.0454 - acc: 0.9885
+Epoch 45/100
+3s - loss: 0.0457 - acc: 0.9878
+Epoch 46/100
+3s - loss: 0.0387 - acc: 0.9896
+Epoch 47/100
+3s - loss: 0.0376 - acc: 0.9892
+Epoch 48/100
+3s - loss: 0.0362 - acc: 0.9908
+Epoch 49/100
+3s - loss: 0.0364 - acc: 0.9896
+Epoch 50/100
+3s - loss: 0.0390 - acc: 0.9882
+Epoch 51/100
+3s - loss: 0.0393 - acc: 0.9893
+Epoch 52/100
+3s - loss: 0.0377 - acc: 0.9892
+Epoch 53/100
+3s - loss: 0.0351 - acc: 0.9913
+Epoch 54/100
+3s - loss: 0.0338 - acc: 0.9913
+Epoch 55/100
+3s - loss: 0.0371 - acc: 0.9908
+Epoch 56/100
+3s - loss: 0.0365 - acc: 0.9905
+Epoch 57/100
+3s - loss: 0.0330 - acc: 0.9916
+Epoch 58/100
+3s - loss: 0.0344 - acc: 0.9892
+Epoch 59/100
+3s - loss: 0.0292 - acc: 0.9913
+Epoch 60/100
+3s - loss: 0.0301 - acc: 0.9914
+Epoch 61/100
+3s - loss: 0.0348 - acc: 0.9896
+Epoch 62/100
+3s - loss: 0.0302 - acc: 0.9916
+Epoch 63/100
+3s - loss: 0.0307 - acc: 0.9907
+Epoch 64/100
+3s - loss: 0.0329 - acc: 0.9901
+Epoch 65/100
+3s - loss: 0.0282 - acc: 0.9932
+Epoch 66/100
+3s - loss: 0.0280 - acc: 0.9922
+Epoch 67/100
+3s - loss: 0.0285 - acc: 0.9913
+Epoch 68/100
+3s - loss: 0.0244 - acc: 0.9940
+Epoch 69/100
+3s - loss: 0.0250 - acc: 0.9922
+Epoch 70/100
+3s - loss: 0.0259 - acc: 0.9925
+Epoch 71/100
+3s - loss: 0.0270 - acc: 0.9926
+Epoch 72/100
+3s - loss: 0.0272 - acc: 0.9916
+Epoch 73/100
+3s - loss: 0.0282 - acc: 0.9922
+Epoch 74/100
+3s - loss: 0.0250 - acc: 0.9931
+Epoch 75/100
+3s - loss: 0.0248 - acc: 0.9932
+Epoch 76/100
+3s - loss: 0.0248 - acc: 0.9943
+Epoch 77/100
+3s - loss: 0.0246 - acc: 0.9937
+Epoch 78/100
+3s - loss: 0.0202 - acc: 0.9940
+Epoch 79/100
+3s - loss: 0.0262 - acc: 0.9934
+Epoch 80/100
+3s - loss: 0.0347 - acc: 0.9899
+Epoch 81/100
+3s - loss: 0.0307 - acc: 0.9901
+Epoch 82/100
+3s - loss: 0.0251 - acc: 0.9931
+Epoch 83/100
+3s - loss: 0.0199 - acc: 0.9947
+Epoch 84/100
+3s - loss: 0.0208 - acc: 0.9943
+Epoch 85/100
+3s - loss: 0.0231 - acc: 0.9928
+Epoch 86/100
+3s - loss: 0.0241 - acc: 0.9925
+Epoch 87/100
+3s - loss: 0.0220 - acc: 0.9928
+Epoch 88/100
+3s - loss: 0.0201 - acc: 0.9932
+Epoch 89/100
+3s - loss: 0.0200 - acc: 0.9943
+Epoch 90/100
+3s - loss: 0.0208 - acc: 0.9940
+Epoch 91/100
+3s - loss: 0.0215 - acc: 0.9931
+Epoch 92/100
+3s - loss: 0.0182 - acc: 0.9949
+Epoch 93/100
+3s - loss: 0.0195 - acc: 0.9938
+Epoch 94/100
+3s - loss: 0.0207 - acc: 0.9937
+Epoch 95/100
+3s - loss: 0.0194 - acc: 0.9947
+Epoch 96/100
+3s - loss: 0.0200 - acc: 0.9934
+Epoch 97/100
+3s - loss: 0.0202 - acc: 0.9944
+Epoch 98/100
+3s - loss: 0.0230 - acc: 0.9928
+Epoch 99/100
+3s - loss: 0.0200 - acc: 0.9937
+Epoch 100/100
+3s - loss: 0.0206 - acc: 0.9938
+...Train done in 0:06:36.229418
+...Save model
+...Writing model to ../models/rnn_model_20170602_22:56:30.yaml done in 0:00:00.000104
+...Writing weights to ../models/rnn_weights_20170602_22:56:30.h5 done in 0:00:00.010192
+...Save model done in 0:00:00.014201
+...Load model done in 0:00:00.264662
+...Test
+...Writing predictions to ../predictions/submission_20170602_22:56:30.csv done in 0:00:01.575799
+...Test done in 0:00:01.576484

@@ -1,0 +1,92 @@
+...Build data and model done in 0:00:00.644956
+...Train
+Epoch 1/100
+4s - loss: 0.7753 - acc: 0.7155
+Epoch 2/100
+3s - loss: 0.5910 - acc: 0.7856
+Epoch 3/100
+3s - loss: 0.5109 - acc: 0.8130
+Epoch 4/100
+3s - loss: 0.4536 - acc: 0.8328
+Epoch 5/100
+3s - loss: 0.3901 - acc: 0.8562
+Epoch 6/100
+3s - loss: 0.3385 - acc: 0.8785
+Epoch 7/100
+3s - loss: 0.2904 - acc: 0.8969
+Epoch 8/100
+3s - loss: 0.2404 - acc: 0.9203
+Epoch 9/100
+3s - loss: 0.2010 - acc: 0.9348
+Epoch 10/100
+3s - loss: 0.1621 - acc: 0.9569
+Epoch 11/100
+3s - loss: 0.1313 - acc: 0.9654
+Epoch 12/100
+3s - loss: 0.1082 - acc: 0.9725
+Epoch 13/100
+3s - loss: 0.0888 - acc: 0.9784
+Epoch 14/100
+3s - loss: 0.0703 - acc: 0.9850
+Epoch 15/100
+3s - loss: 0.0564 - acc: 0.9890
+Epoch 16/100
+3s - loss: 0.0477 - acc: 0.9899
+Epoch 17/100
+3s - loss: 0.0378 - acc: 0.9929
+Epoch 18/100
+3s - loss: 0.0331 - acc: 0.9938
+Epoch 19/100
+3s - loss: 0.0277 - acc: 0.9949
+Epoch 20/100
+3s - loss: 0.0234 - acc: 0.9961
+Epoch 21/100
+3s - loss: 0.0186 - acc: 0.9971
+Epoch 22/100
+3s - loss: 0.0165 - acc: 0.9973
+Epoch 23/100
+3s - loss: 0.0153 - acc: 0.9967
+Epoch 24/100
+3s - loss: 0.0124 - acc: 0.9973
+Epoch 25/100
+3s - loss: 0.0110 - acc: 0.9979
+Epoch 26/100
+3s - loss: 0.0107 - acc: 0.9977
+Epoch 27/100
+3s - loss: 0.0091 - acc: 0.9983
+Epoch 28/100
+3s - loss: 0.0076 - acc: 0.9986
+Epoch 29/100
+3s - loss: 0.0072 - acc: 0.9982
+Epoch 30/100
+3s - loss: 0.0074 - acc: 0.9980
+Epoch 31/100
+3s - loss: 0.0063 - acc: 0.9985
+Epoch 32/100
+3s - loss: 0.0043 - acc: 0.9989
+Epoch 33/100
+3s - loss: 0.0055 - acc: 0.9985
+Epoch 34/100
+3s - loss: 0.0046 - acc: 0.9988
+Epoch 35/100
+3s - loss: 0.0043 - acc: 0.9989
+Epoch 36/100
+3s - loss: 0.0040 - acc: 0.9988
+Epoch 37/100
+3s - loss: 0.0034 - acc: 0.9989
+Epoch 38/100
+3s - loss: 0.0036 - acc: 0.9983
+Epoch 39/100
+3s - loss: 0.0025 - acc: 0.9989
+Epoch 40/100
+3s - loss: 0.0030 - acc: 0.9982
+Epoch 41/100
+Early stopping: accuracy = 0.999093 at epoch 40
+3s - loss: 0.0024 - acc: 0.9991
+...Train done in 0:02:39.580641
+...Writing model to ../models/ConcatRNN_model_20170608_10:25:47.yaml done in 0:00:00.000090
+...Writing weights to ../models/ConcatRNN_weights_20170608_10:25:47.h5 done in 0:00:00.023657
+...Test
+...Load model done in 0:00:00.814111
+...Writing predictions to ../predictions/submission_20170608_10:25:48.csv done in 0:00:01.466952
+...Test done in 0:00:02.281491

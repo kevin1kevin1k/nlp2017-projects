@@ -1,0 +1,15 @@
+Classifier:
+
+Input: 300-dim sentence vector + 5-dim aspect onehot
+
+Output:
+{-1, 0, 1}
+
+
+
+(R)NN:
+
+Input: 300-dim sentence vector
+
+Output:
+[0, 1]^5

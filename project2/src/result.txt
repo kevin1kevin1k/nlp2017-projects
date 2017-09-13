@@ -1,0 +1,180 @@
+0.7
+033: same as 032 except the bug of duplicate top words fixed, so that there are 30 top words in total (100 epochs)
+submission_20170610_03:54:55.csv
+
+0.694
+026: same as 023 except dropout and recurrent_dropout set to 0.3 instead of 0.2 (100 epochs)
+submission_20170608_02:50:00.csv
+
+0.694
+027: same as 026 except dropout and recurrent_dropout set to 0.4 instead of 0.3 (100 epochs)
+submission_20170608_10:15:35.csv
+
+0.686
+034: same as 033 except taking the average of (1) concatenated LSTMs fed to Dense-4dim and (2) 31-dim top words count fed to Dense-4dim (100 epochs)
+submission_20170610_04:03:44.csv
+
+0.686
+037: same as 033 except using manually chosen top 30 words (100 epochs)
+submission_20170610_04:52:15.csv
+
+0.682
+023: same as 022 except replacing adam with RMSprop (reach acc > 0.999 with 57 epochs)
+submission_20170608_01:40:21.csv
+
+0.682
+036: same as 033 except changing NUM_FILTER_WORDS from 30 to 22 (100 epochs)
+submission_20170610_04:38:54.csv
+
+0.68
+018: same as 015 except batch training (reach acc > 0.999 with 504 epochs)
+submission_20170606_01:44:12.csv
+
+0.68
+031: same as 026 except adding counts of top-10 frequent words for each relation (totally 40), which is concatenated to Dense(LSTM1, LSTM2), and then fed to Dense (100 epochs)
+submission_20170608_23:30:03.csv
+
+0.68
+035: same as 034 except removing count of non-top words (100 epochs)
+submission_20170610_04:26:49.csv
+
+0.68
+038: same as 033 except using batch training (reach acc > 0.999 with 688 epochs)
+submission_20170611_13:21:09.csv
+
+0.678
+015: same as 012 except reversing each clause for input
+submission_20170604_12:30:55.csv
+
+0.678
+029: same as 027 except recurrent_dropout set to 0.0 instead of 0.4 (100 epochs)
+submission_20170608_10:37:40.csv
+
+0.676
+022: same as 015 except using CKIP segment and replacing RMSprop with adam (reach acc > 0.999 with 63 epochs)
+submission_20170608_01:25:29.csv
+
+0.676
+032: same as 031 except concatenating (LSTM1, LSTM2, count) and then fed to Dense (100 epochs)
+submission_20170608_23:43:51.csv
+
+0.672
+016: same as 015 except replacing sigmoid with softmax
+submission_20170604_12:46:13.csv
+
+0.668
+019: same as 018 except replacing RMSprop with adam (reach acc > 0.999 with 453 epochs, and the curve is smoother)
+submission_20170606_02:53:29.csv
+
+0.664
+006: same as 004 except aligning word vectors to the right instead of to the left
+submission_20170602_22:56:30.csv
+
+0.664
+007: same as 006 except replacing adam with RMSprop
+submission_20170603_15:21:47.csv
+
+0.664
+020: same as 015 except one more layer of LSTM
+submission_20170606_04:04:55.csv
+
+0.662
+017: same as 015 except setting class_weight to inverse class frequency
+submission_20170604_13:29:46.csv
+
+0.658
+008: same as 007 except wrapping LSTM with Bidirectional
+submission_20170603_17:12:25.csv
+
+0.652
+013: same as 007 except setting cut_all=True when segmenting with jieba
+submission_20170604_12:05:13.csv
+
+0.65
+gradientboosting 120 c 1080 other words
+submission15.csv
+
+0.65
+039: same as 033 except adding Conv1D before LSTM
+submission_20170612_13:56:45.csv
+
+0.648
+012: same as 007 except using two LSTMs for two clauses and concatenating them
+submission_20170604_00:43:43.csv
+
+0.648
+028: same as 027 except dropout set to 0.0 instead of 0.4 (reach acc > 0.999 with 40 epochs)
+submission_20170608_10:25:48.csv
+
+0.648
+2 layer conv2d / 7 epoch
+cnn_0611_3.csv
+
+0.644
+004: same as 005 except no buggy padding
+submission_20170602_21:25:53.csv
+
+0.644
+014: same as 012 setting cut_all=True when segmenting with jieba
+submission_20170604_12:17:52.csv
+
+0.642
+gbc 100c 400 word
+submission20.csv
+
+0.64
+009: same as 007 except running 150 epochs instead of 100
+submission_20170603_23:20:55.csv
+
+0.636
+010: same as 007 except dropout and recurrent_dropout set to 0.1 instead of 0.2
+submission_20170603_23:36:07.csv
+
+0.636
+gradientboosting 150 c 300 other words
+submission17.csv
+
+0.634
+GradientBoostClassifier with 100 c 1000 word
+submission14.csv
+
+0.634
+gbc 180 (con. adverb. prep.) and 1620 words
+submission22.csv
+
+0.63
+2 layer conv1d / 15 epoch
+cnn_0610_1.csv
+
+0.628
+gbc 120 (con. adverb. prep.) and 1080 words
+submission21.csv
+
+0.628
+gradientboostingclassifier 1500 word
+submission23.csv
+
+0.584
+003: same as 002 except random shuffling data (buggy padding)
+submission_20170602_11:26:33.csv
+
+0.576
+005: same as 003 except using all data without validation set (buggy padding)
+submission_20170602_22:04:29.csv
+
+0.576
+024: same as 023 except using Embedding layer instead of pretrained model (reach acc > 0.999 with 33 epochs)
+submission_20170608_02:05:47.csv
+
+0.564
+025: same as 024 except fixed building data bug (using embedding to decide whether to put word in) (reach acc > 0.999 with 21 epochs)
+submission_20170608_02:23:28.csv
+
+0.55
+002: same as 001 except 100 epochs (buggy padding)
+submission_20170602_10:52:23.csv
+
+0.31
+001: 5 epochs (buggy padding)
+submission_20170602_03:44:56.csv
+

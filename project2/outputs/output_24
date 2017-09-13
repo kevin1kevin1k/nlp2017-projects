@@ -1,0 +1,107 @@
+...Build data and model____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+input_1 (InputLayer)             (None, 17)            0                                            
+____________________________________________________________________________________________________
+input_2 (InputLayer)             (None, 17)            0                                            
+____________________________________________________________________________________________________
+embedding_1 (Embedding)          (None, 17, 100)       1848500     input_1[0][0]                    
+____________________________________________________________________________________________________
+embedding_2 (Embedding)          (None, 17, 100)       1848500     input_2[0][0]                    
+____________________________________________________________________________________________________
+lstm_1 (LSTM)                    (None, 100)           80400       embedding_1[0][0]                
+____________________________________________________________________________________________________
+lstm_2 (LSTM)                    (None, 100)           80400       embedding_2[0][0]                
+____________________________________________________________________________________________________
+concatenate_1 (Concatenate)      (None, 200)           0           lstm_1[0][0]                     
+                                                                   lstm_2[0][0]                     
+____________________________________________________________________________________________________
+dense_1 (Dense)                  (None, 4)             804         concatenate_1[0][0]              
+====================================================================================================
+Total params: 3,858,604
+Trainable params: 3,858,604
+Non-trainable params: 0
+____________________________________________________________________________________________________
+ done in 0:00:00.596756
+...Train
+Epoch 1/100
+6s - loss: 1.0817 - acc: 0.5865
+Epoch 2/100
+5s - loss: 0.7716 - acc: 0.7166
+Epoch 3/100
+5s - loss: 0.5470 - acc: 0.8081
+Epoch 4/100
+5s - loss: 0.3987 - acc: 0.8579
+Epoch 5/100
+5s - loss: 0.2973 - acc: 0.8995
+Epoch 6/100
+5s - loss: 0.2171 - acc: 0.9282
+Epoch 7/100
+5s - loss: 0.1625 - acc: 0.9439
+Epoch 8/100
+5s - loss: 0.1180 - acc: 0.9635
+Epoch 9/100
+5s - loss: 0.0856 - acc: 0.9742
+Epoch 10/100
+5s - loss: 0.0634 - acc: 0.9804
+Epoch 11/100
+5s - loss: 0.0505 - acc: 0.9846
+Epoch 12/100
+5s - loss: 0.0355 - acc: 0.9891
+Epoch 13/100
+5s - loss: 0.0276 - acc: 0.9909
+Epoch 14/100
+5s - loss: 0.0233 - acc: 0.9926
+Epoch 15/100
+5s - loss: 0.0169 - acc: 0.9953
+Epoch 16/100
+5s - loss: 0.0132 - acc: 0.9967
+Epoch 17/100
+5s - loss: 0.0121 - acc: 0.9960
+Epoch 18/100
+5s - loss: 0.0112 - acc: 0.9962
+Epoch 19/100
+5s - loss: 0.0079 - acc: 0.9970
+Epoch 20/100
+5s - loss: 0.0079 - acc: 0.9982
+Epoch 21/100
+5s - loss: 0.0059 - acc: 0.9988
+Epoch 22/100
+5s - loss: 0.0061 - acc: 0.9983
+Epoch 23/100
+5s - loss: 0.0052 - acc: 0.9986
+Epoch 24/100
+5s - loss: 0.0052 - acc: 0.9986
+Epoch 25/100
+5s - loss: 0.0056 - acc: 0.9980
+Epoch 26/100
+5s - loss: 0.0046 - acc: 0.9983
+Epoch 27/100
+5s - loss: 0.0033 - acc: 0.9983
+Epoch 28/100
+5s - loss: 0.0037 - acc: 0.9986
+Epoch 29/100
+5s - loss: 0.0026 - acc: 0.9988
+Epoch 30/100
+5s - loss: 0.0028 - acc: 0.9983
+Epoch 31/100
+5s - loss: 0.0040 - acc: 0.9985
+Epoch 32/100
+5s - loss: 0.0019 - acc: 0.9988
+Epoch 33/100
+5s - loss: 0.0022 - acc: 0.9988
+Epoch 34/100
+Early stopping: accuracy = 0.999088 at epoch 33
+5s - loss: 0.0022 - acc: 0.9991
+...Train done in 0:03:14.688028
+...Writing model to ../models/ConcatRNN_model_20170608_02:05:46.yaml done in 0:00:00.000106
+...Writing weights to ../models/ConcatRNN_weights_20170608_02:05:46.h5 done in 0:00:00.064294
+...Test
+...Load model done in 0:00:00.704616
+...Writing predictions to ../predictions/submission_20170608_02:05:47.csvWarning: for id = 6697, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 6783, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7014, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7222, len(embedi) == 0 for some i = 1, 2.
+Warning: for id = 7607, len(embedi) == 0 for some i = 1, 2.
+ done in 0:00:01.395204
+...Test done in 0:00:02.100268

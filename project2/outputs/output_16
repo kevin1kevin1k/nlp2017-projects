@@ -1,0 +1,248 @@
+...Build data done in 0:00:00.291920
+...Train
+____________________________________________________________________________________________________
+Layer (type)                     Output Shape          Param #     Connected to                     
+====================================================================================================
+input_1 (InputLayer)             (None, 17, 300)       0                                            
+____________________________________________________________________________________________________
+input_2 (InputLayer)             (None, 17, 300)       0                                            
+____________________________________________________________________________________________________
+lstm_1 (LSTM)                    (None, 100)           160400      input_1[0][0]                    
+____________________________________________________________________________________________________
+lstm_2 (LSTM)                    (None, 100)           160400      input_2[0][0]                    
+____________________________________________________________________________________________________
+concatenate_1 (Concatenate)      (None, 200)           0           lstm_1[0][0]                     
+                                                                   lstm_2[0][0]                     
+____________________________________________________________________________________________________
+dense_1 (Dense)                  (None, 4)             804         concatenate_1[0][0]              
+====================================================================================================
+Total params: 321,604
+Trainable params: 321,604
+Non-trainable params: 0
+____________________________________________________________________________________________________
+Epoch 1/100
+4s - loss: 0.7723 - acc: 0.7148
+Epoch 2/100
+4s - loss: 0.6106 - acc: 0.7786
+Epoch 3/100
+4s - loss: 0.5471 - acc: 0.8022
+Epoch 4/100
+4s - loss: 0.4873 - acc: 0.8203
+Epoch 5/100
+4s - loss: 0.4400 - acc: 0.8372
+Epoch 6/100
+4s - loss: 0.3932 - acc: 0.8533
+Epoch 7/100
+4s - loss: 0.3484 - acc: 0.8721
+Epoch 8/100
+4s - loss: 0.2969 - acc: 0.8938
+Epoch 9/100
+4s - loss: 0.2581 - acc: 0.9101
+Epoch 10/100
+4s - loss: 0.2188 - acc: 0.9233
+Epoch 11/100
+4s - loss: 0.1848 - acc: 0.9398
+Epoch 12/100
+4s - loss: 0.1486 - acc: 0.9589
+Epoch 13/100
+4s - loss: 0.1267 - acc: 0.9636
+Epoch 14/100
+4s - loss: 0.1064 - acc: 0.9721
+Epoch 15/100
+4s - loss: 0.0895 - acc: 0.9762
+Epoch 16/100
+4s - loss: 0.0697 - acc: 0.9846
+Epoch 17/100
+4s - loss: 0.0614 - acc: 0.9855
+Epoch 18/100
+4s - loss: 0.0525 - acc: 0.9881
+Epoch 19/100
+4s - loss: 0.0448 - acc: 0.9901
+Epoch 20/100
+4s - loss: 0.0400 - acc: 0.9915
+Epoch 21/100
+4s - loss: 0.0358 - acc: 0.9918
+Epoch 22/100
+4s - loss: 0.0297 - acc: 0.9949
+Epoch 23/100
+4s - loss: 0.0277 - acc: 0.9940
+Epoch 24/100
+4s - loss: 0.0230 - acc: 0.9966
+Epoch 25/100
+4s - loss: 0.0221 - acc: 0.9954
+Epoch 26/100
+4s - loss: 0.0217 - acc: 0.9951
+Epoch 27/100
+4s - loss: 0.0192 - acc: 0.9960
+Epoch 28/100
+4s - loss: 0.0194 - acc: 0.9963
+Epoch 29/100
+4s - loss: 0.0166 - acc: 0.9966
+Epoch 30/100
+4s - loss: 0.0130 - acc: 0.9975
+Epoch 31/100
+4s - loss: 0.0145 - acc: 0.9977
+Epoch 32/100
+4s - loss: 0.0111 - acc: 0.9981
+Epoch 33/100
+4s - loss: 0.0123 - acc: 0.9978
+Epoch 34/100
+4s - loss: 0.0131 - acc: 0.9972
+Epoch 35/100
+4s - loss: 0.0102 - acc: 0.9981
+Epoch 36/100
+4s - loss: 0.0095 - acc: 0.9980
+Epoch 37/100
+4s - loss: 0.0108 - acc: 0.9978
+Epoch 38/100
+4s - loss: 0.0100 - acc: 0.9978
+Epoch 39/100
+4s - loss: 0.0082 - acc: 0.9986
+Epoch 40/100
+4s - loss: 0.0087 - acc: 0.9986
+Epoch 41/100
+4s - loss: 0.0075 - acc: 0.9986
+Epoch 42/100
+4s - loss: 0.0086 - acc: 0.9978
+Epoch 43/100
+4s - loss: 0.0085 - acc: 0.9983
+Epoch 44/100
+4s - loss: 0.0076 - acc: 0.9983
+Epoch 45/100
+4s - loss: 0.0083 - acc: 0.9986
+Epoch 46/100
+4s - loss: 0.0077 - acc: 0.9988
+Epoch 47/100
+4s - loss: 0.0068 - acc: 0.9988
+Epoch 48/100
+4s - loss: 0.0060 - acc: 0.9989
+Epoch 49/100
+4s - loss: 0.0081 - acc: 0.9988
+Epoch 50/100
+4s - loss: 0.0062 - acc: 0.9986
+Epoch 51/100
+4s - loss: 0.0055 - acc: 0.9988
+Epoch 52/100
+4s - loss: 0.0059 - acc: 0.9985
+Epoch 53/100
+4s - loss: 0.0069 - acc: 0.9985
+Epoch 54/100
+4s - loss: 0.0048 - acc: 0.9991
+Epoch 55/100
+4s - loss: 0.0071 - acc: 0.9986
+Epoch 56/100
+4s - loss: 0.0061 - acc: 0.9983
+Epoch 57/100
+4s - loss: 0.0055 - acc: 0.9986
+Epoch 58/100
+4s - loss: 0.0055 - acc: 0.9988
+Epoch 59/100
+4s - loss: 0.0050 - acc: 0.9988
+Epoch 60/100
+4s - loss: 0.0048 - acc: 0.9988
+Epoch 61/100
+4s - loss: 0.0052 - acc: 0.9989
+Epoch 62/100
+4s - loss: 0.0039 - acc: 0.9991
+Epoch 63/100
+4s - loss: 0.0047 - acc: 0.9989
+Epoch 64/100
+4s - loss: 0.0053 - acc: 0.9988
+Epoch 65/100
+4s - loss: 0.0045 - acc: 0.9989
+Epoch 66/100
+4s - loss: 0.0049 - acc: 0.9988
+Epoch 67/100
+4s - loss: 0.0051 - acc: 0.9989
+Epoch 68/100
+4s - loss: 0.0047 - acc: 0.9988
+Epoch 69/100
+4s - loss: 0.0046 - acc: 0.9991
+Epoch 70/100
+4s - loss: 0.0043 - acc: 0.9989
+Epoch 71/100
+4s - loss: 0.0043 - acc: 0.9985
+Epoch 72/100
+4s - loss: 0.0043 - acc: 0.9989
+Epoch 73/100
+4s - loss: 0.0032 - acc: 0.9989
+Epoch 74/100
+4s - loss: 0.0041 - acc: 0.9986
+Epoch 75/100
+4s - loss: 0.0048 - acc: 0.9988
+Epoch 76/100
+4s - loss: 0.0040 - acc: 0.9992
+Epoch 77/100
+4s - loss: 0.0052 - acc: 0.9988
+Epoch 78/100
+4s - loss: 0.0040 - acc: 0.9989
+Epoch 79/100
+4s - loss: 0.0034 - acc: 0.9991
+Epoch 80/100
+4s - loss: 0.0036 - acc: 0.9988
+Epoch 81/100
+4s - loss: 0.0043 - acc: 0.9986
+Epoch 82/100
+4s - loss: 0.0045 - acc: 0.9986
+Epoch 83/100
+4s - loss: 0.0044 - acc: 0.9989
+Epoch 84/100
+4s - loss: 0.0029 - acc: 0.9992
+Epoch 85/100
+4s - loss: 0.0046 - acc: 0.9985
+Epoch 86/100
+4s - loss: 0.0031 - acc: 0.9991
+Epoch 87/100
+4s - loss: 0.0036 - acc: 0.9986
+Epoch 88/100
+4s - loss: 0.0042 - acc: 0.9986
+Epoch 89/100
+4s - loss: 0.0039 - acc: 0.9992
+Epoch 90/100
+4s - loss: 0.0035 - acc: 0.9988
+Epoch 91/100
+4s - loss: 0.0038 - acc: 0.9988
+Epoch 92/100
+4s - loss: 0.0042 - acc: 0.9986
+Epoch 93/100
+4s - loss: 0.0040 - acc: 0.9992
+Epoch 94/100
+4s - loss: 0.0037 - acc: 0.9989
+Epoch 95/100
+4s - loss: 0.0025 - acc: 0.9992
+Epoch 96/100
+4s - loss: 0.0035 - acc: 0.9991
+Epoch 97/100
+4s - loss: 0.0039 - acc: 0.9988
+Epoch 98/100
+4s - loss: 0.0028 - acc: 0.9991
+Epoch 99/100
+4s - loss: 0.0039 - acc: 0.9989
+Epoch 100/100
+4s - loss: 0.0034 - acc: 0.9989
+...Train done in 0:07:22.197258
+...Save model
+...Writing model to ../models/rnn_model_20170604_12:46:12.yaml done in 0:00:00.000137
+...Writing weights to ../models/rnn_weights_20170604_12:46:12.h5 done in 0:00:00.023783
+...Save model done in 0:00:00.032050
+...Load model done in 0:00:00.596601
+...Test
+...Writing predictions to ../predictions/submission_20170604_12:46:13.csvWarning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+Warning: len(embedi) == 0 for some i = 1, 2.
+ done in 0:00:01.550071
+...Test done in 0:00:01.550979
