@@ -3,10 +3,7 @@ class Base(object):
         self.x = x
     
     def func(self, f):
-        if isinstance(self, Twice):
-            self.x = f(f(self.x))
-        else:
-            self.x = f(self.x)
+        self.x = f(f(self.x)) if isinstance(self, Twice) else f(self.x)
         print(self.x)
     
 class Twice(Base):

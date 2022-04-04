@@ -52,40 +52,28 @@ class CkipSrv:
 
         response=self.process(in_data, request_form)
 
-        if not ('<processstatus code="0">' in response):
-            m=re.search(r'<processstatus code=(.*)>(.*)</processstatus>',response)
-            if m:
-                sys.stderr.write("ERROR(%s):%s\n"%(m.group(1),m.group(2)))
+        if '<processstatus code="0">' not in response:
+            if m := re.search(
+                r'<processstatus code=(.*)>(.*)</processstatus>', response
+            ):
+                sys.stderr.write("ERROR(%s):%s\n" % (m[1], m[2]))
                 sys.exit(1)
-            
+
         if options['xml']:
             return (response,"")
 
         L=re.findall(r"<sentence>.*?</sentence>",response)
-        segL=[]
-        for line in L:
-            segL.append(line[10:-11])
-
+        segL = [line[10:-11] for line in L]
         L=re.findall(r"<unknownword>.*?</unknownword>",response)
-        uwL=[]
-        for line in L:
-            uwL.append(line[13:-14])
-
+        uwL = [line[13:-14] for line in L]
         return (segL, uwL)
 
     def segFile(self, input, output=None, uw=None, options={}):
-        if input==None:
-            fi=sys.stdin
-        else:
-            fi = open(input,"r")
-        if output==None:
-            fo=sys.stdout
-        else:
-            fo=open(output,"w")
-
+        fi = sys.stdin if input is None else open(input,"r")
+        fo = sys.stdout if output is None else open(output,"w")
         if uw!=None:
             fu=open(uw,"w")
-            
+
 
         line_no=0
         L=[]

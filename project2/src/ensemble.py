@@ -7,7 +7,7 @@ submissions = []
 with open('../Submissions - NTU NLP 2017 - Term Project 2 _ Kaggle in Class.htm') as f:
     html = f.read()
     soup = BS(html, 'lxml')
-    for i, tr in enumerate(reversed(soup('tr'))):
+    for tr in reversed(soup('tr')):
         div = tr('div')
         center = tr.find_all(class_='center')
         file_ = tr.find_all(class_='file')
@@ -37,14 +37,14 @@ for sub in submissions[:TOP_N]:
         for i, line in enumerate(f):
             if i == 0:
                 continue
-            
+
             id_, relation = line.strip().split(',')
             ids[i - 1] = id_
-            if BLENDING == 'uniform':
-                Y[i - 1, relation2int[relation]] += 1
-            elif BLENDING == 'linear':
+            if BLENDING == 'linear':
                 Y[i - 1, relation2int[relation]] += sub[ACC]
 
+            elif BLENDING == 'uniform':
+                Y[i - 1, relation2int[relation]] += 1
 y = Y.argmax(axis=1)
 time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
 filepath = os.path.join(PREDICT_PATH, 'ensemble_%s_top%d_%s.csv' % (BLENDING, TOP_N, time))

@@ -63,8 +63,7 @@ def get_config():
                         help='path of input file')
     parser.add_argument('-o', '--output_path', default='segmented.txt',
                         help='path of output file')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':

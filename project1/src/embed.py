@@ -23,31 +23,32 @@ with open('../data/ChineseStopWords_CT.txt') as stopwords_file:
 
 def sent2vecs(sent):
     # sent is a list of words
-    
-    embeds = []
-    for word in sent:
-        if word in embedding:
-            if word not in stopwords:
-                embeds.append(embedding[word])
-    if embeds == []:
+
+    embeds = [
+        embedding[word]
+        for word in sent
+        if word in embedding and word not in stopwords
+    ]
+
+    if not embeds:
         return None
-    
+
     return embeds
     
 
 def sent2vec(sent):
     # sent is a list of words
-    
-    embeds = []
-    for word in sent:
-        if word in embedding:
-            if word not in stopwords:
-                embeds.append(embedding[word])
-    if embeds == []:
+
+    embeds = [
+        embedding[word]
+        for word in sent
+        if word in embedding and word not in stopwords
+    ]
+
+    if not embeds:
         return None
 
-    vec = np.mean(embeds, axis=0)
-    return vec
+    return np.mean(embeds, axis=0)
 
 
 def array2tuple(array):
@@ -80,14 +81,11 @@ if __name__ == '__main__':
     review_pol = {}
     review_id = {}
     with open('../data/polarity_review_seg.txt') as seg_file:
-        id_ = 0
-        for line in seg_file:
+        for id_, line in enumerate(seg_file):
             pol, review = line.strip().split(' ')
             pol = int(pol)
             review_pol[review] = pol
             review_id[review] = id_
-            id_ += 1
-
     vec_review_25w = reviews2vec_review(review_pol)
     delta = time() - start
     info('finish reading polarity_review', delta)
@@ -132,7 +130,7 @@ if __name__ == '__main__':
             vec_i, vec_j = vecs25w[i], vecs200[j]
             review_i, review_j = vec_review_25w[vec_i], vec_review_200[vec_j]
             pos, neg = review_info[review_j]
-            
+
             # TODO: decide which aspects to take
             # maybe dont take all, or also take opposite ones
             if review_pol[review_i] > 0:
@@ -148,33 +146,32 @@ if __name__ == '__main__':
                         if cos < min_cos:
                             min_cos = cos
                             arg_min_cos = a
-                    
+
                     if min_cos < 2:
                         out_file.write(str(review_id[review_i]) + '\n')
                         out_file.write(review_i + '\n')
                         out_file.write(arg_min_cos + '\n')
                         out_file.write('\n')
                         # out_file.write('%.6f\n' % cosine[i, j])
-            else:
-                if neg != '':
-                    min_cos = 2.0
-                    for a in neg.split():
-                        aspect = aspect2idx[a]
-                        vecs_review = sent2vecs(review_i)
-                        vecs_aspect = sent2vecs(aspect_terms[aspect])
-                        if vecs_review is None or vecs_aspect is None:
-                            continue
-                        cos = np.min(cdist(vecs_review, vecs_aspect))
-                        if cos < min_cos:
-                            min_cos = cos
-                            arg_min_cos = a
-                            
-                    if min_cos < 2:
-                        out_file.write(str(review_id[review_i]) + '\n')
-                        out_file.write(review_i + '\n')
-                        out_file.write('\n')
-                        out_file.write(arg_min_cos + '\n')
-                        # out_file.write('%.6f\n' % cosine[i, j])
-                    
+            elif neg != '':
+                min_cos = 2.0
+                for a in neg.split():
+                    aspect = aspect2idx[a]
+                    vecs_review = sent2vecs(review_i)
+                    vecs_aspect = sent2vecs(aspect_terms[aspect])
+                    if vecs_review is None or vecs_aspect is None:
+                        continue
+                    cos = np.min(cdist(vecs_review, vecs_aspect))
+                    if cos < min_cos:
+                        min_cos = cos
+                        arg_min_cos = a
+
+                if min_cos < 2:
+                    out_file.write(str(review_id[review_i]) + '\n')
+                    out_file.write(review_i + '\n')
+                    out_file.write('\n')
+                    out_file.write(arg_min_cos + '\n')
+                    # out_file.write('%.6f\n' % cosine[i, j])
+
     delta = time() - start
     info('finish output file', delta)

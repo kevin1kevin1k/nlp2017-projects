@@ -27,7 +27,7 @@ def train_data():
     with open('../data/polarity_review_aspect.txt') as in_file:
         line = in_file.readline()
         l = 0
-        
+
         # L = number of instances.
         # A review with 3 aspects counts as 3 instances.
         L = 165827*5
@@ -48,26 +48,24 @@ def train_data():
 
             line = in_file.readline()
             cosine = float(line.strip())
-            
-            # if cosine < 0.1:
-            if True:
-                for aspect in aspect2idx:
-                    X[l] = np.append(vec, onehot(aspect))
-                    if aspect in pos:
-                        y[l] = +1
-                    elif aspect in neg:
-                        y[l] = -1
-                    else:
-                        y[l] = 0
-                    l += 1
-            
+
+            for aspect in aspect2idx:
+                X[l] = np.append(vec, onehot(aspect))
+                if aspect in pos:
+                    y[l] = +1
+                elif aspect in neg:
+                    y[l] = -1
+                else:
+                    y[l] = 0
+                l += 1
+
             # if l + 1 == L:
             #     break
-                    
+
             line = in_file.readline()
 
         print(X.shape, y.shape)
-        
+
     delta = time() - start
     info('finish creating X and y', delta)
 
@@ -153,9 +151,9 @@ def run_exp(model, name, X, y, X_valid, y_valid, d):
     clf = model(max_depth=d)
     clf.fit(X, y)
     delta = time() - start
-    info('finish fitting %s' % name, delta)
+    info(f'finish fitting {name}', delta)
     print(d)
-    
+
     y_pred = clf.predict(X_valid)
     print(accuracy_score(y_valid, y_pred))
 
