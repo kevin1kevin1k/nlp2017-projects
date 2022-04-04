@@ -58,8 +58,7 @@ class Node(object):
         return chars != self.from_word[:-1]
 
     def __str__(self):
-        return '<Node, %s, %s, %s, %s>' % (repr(self.from_word),
-                repr(self.to_word), self.is_tail, self.have_child)
+        return f'<Node, {repr(self.from_word)}, {repr(self.to_word)}, {self.is_tail}, {self.have_child}>'
 
     __repr__ = __str__
 
@@ -71,7 +70,6 @@ class ConvertMap(object):
             self.set_convert_map(mapping)
 
     def set_convert_map(self, mapping):
-        convert_map = {}
         have_child = {}
         max_key_length = 0
         for key in sorted(mapping.keys()):
@@ -81,9 +79,11 @@ class ConvertMap(object):
                     have_child[parent_key] = True
             have_child[key] = False
             max_key_length = max(max_key_length, len(key))
-        for key in sorted(have_child.keys()):
-            convert_map[key] = (key in mapping, have_child[key],
-                    mapping.get(key, UEMPTY))
+        convert_map = {
+            key: (key in mapping, have_child[key], mapping.get(key, UEMPTY))
+            for key in sorted(have_child.keys())
+        }
+
         self._map = convert_map
         self.max_key_length = max_key_length
 
@@ -120,18 +120,11 @@ class StatesMachine(object):
 
         if node.have_child:
             if node.is_tail:
-                if node.is_original:
-                    cond = UNMATCHED_SWITCH
-                else:
-                    cond = MATCHED_SWITCH
+                cond = UNMATCHED_SWITCH if node.is_original else MATCHED_SWITCH
             else:
                 cond = CONNECTOR
         else:
-            if node.is_tail:
-                cond = TAIL
-            else:
-                cond = ERROR
-
+            cond = TAIL if node.is_tail else ERROR
         new = None
         if cond == ERROR:
             self.state = FAIL
@@ -143,24 +136,23 @@ class StatesMachine(object):
                 self.len += 1
                 self.pool = UEMPTY
                 self.state = END
-        elif self.state == START or self.state == WAIT_TAIL:
+        elif self.state in [START, WAIT_TAIL]:
             if cond == MATCHED_SWITCH:
                 new = self.clone(node.from_word)
                 self.final += node.to_word
                 self.len += 1
                 self.state = END
                 self.pool = UEMPTY
-            elif cond == UNMATCHED_SWITCH or cond == CONNECTOR:
+            elif cond in [UNMATCHED_SWITCH, CONNECTOR]:
                 if self.state == START:
                     new = self.clone(node.from_word)
                     self.final += node.to_word
                     self.len += 1
                     self.state = END
+                elif node.is_follow(self.pool):
+                    self.state = FAIL
                 else:
-                    if node.is_follow(self.pool):
-                        self.state = FAIL
-                    else:
-                        self.pool = node.from_word
+                    self.pool = node.from_word
         elif self.state == END:
             # END is a new START
             self.state = START
@@ -187,16 +179,12 @@ class Converter(object):
     def feed(self, char):
         branches = []
         for fsm in self.machines:
-            new = fsm.feed(char, self.map)
-            if new:
+            if new := fsm.feed(char, self.map):
                 branches.append(new)
         if branches:
             self.machines.extend(branches)
         self.machines = [fsm for fsm in self.machines if fsm.state != FAIL]
-        all_ok = True
-        for fsm in self.machines:
-            if fsm.state != END:
-                all_ok = False
+        all_ok = all(fsm.state == END for fsm in self.machines)
         if all_ok:
             self._clean()
         return self.get_result()
@@ -213,8 +201,7 @@ class Converter(object):
         self.final = UEMPTY
 
     def end(self):
-        self.machines = [fsm for fsm in self.machines
-                if fsm.state == FAIL or fsm.state == END]
+        self.machines = [fsm for fsm in self.machines if fsm.state in [FAIL, END]]
         self._clean()
 
     def convert(self, string):
@@ -250,21 +237,14 @@ def run():
     (options, args) = parser.parse_args()
     if not options.encoding:
         parser.error('encoding must be set')
-    if options.file_in:
-        if options.file_in == '-':
-            file_in = sys.stdin
-        else:
-            file_in = open(options.file_in)
-    else:
+    if options.file_in and options.file_in == '-' or not options.file_in:
         file_in = sys.stdin
-    if options.file_out:
-        if options.file_out == '-':
-            file_out = sys.stdout
-        else:
-            file_out = open(options.file_out, 'wb')
     else:
+        file_in = open(options.file_in)
+    if options.file_out and options.file_out == '-' or not options.file_out:
         file_out = sys.stdout
-
+    else:
+        file_out = open(options.file_out, 'wb')
     c = Converter(options.encoding)
     for line in file_in:
         # print >> file_out, c.convert(line.rstrip('\n').decode(

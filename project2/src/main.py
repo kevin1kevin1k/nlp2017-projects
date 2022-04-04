@@ -37,8 +37,7 @@ def get_config():
     parser.add_argument('action', nargs='+')
     parser.add_argument('-m', '--model-path')
     parser.add_argument('-w', '--weights-path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':

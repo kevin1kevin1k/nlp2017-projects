@@ -34,8 +34,8 @@ NUM_FILTER_WORDS = 30
 DATA_PATH = '../data'
 DATA_SUFFIX = '_seg_CKIP.txt'
 SPLIT_SYMBOL = ' '
-TRAIN_PATH = os.path.join(DATA_PATH, 'train' + DATA_SUFFIX)
-TEST_PATH = os.path.join(DATA_PATH, 'test' + DATA_SUFFIX)
+TRAIN_PATH = os.path.join(DATA_PATH, f'train{DATA_SUFFIX}')
+TEST_PATH = os.path.join(DATA_PATH, f'test{DATA_SUFFIX}')
 SAVE_PATH = '../models'
 PREDICT_PATH = '../predictions'
 
@@ -173,13 +173,13 @@ class _BaseClass(object):
             os.makedirs(SAVE_PATH)
         yaml = self.model.to_yaml()
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
-        model_filename = '%s_model_%s.yaml' % (self.__class__.__name__, time)
+        model_filename = f'{self.__class__.__name__}_model_{time}.yaml'
         model_path = os.path.join(SAVE_PATH, model_filename)
-        with SimpleTimer('Writing model to %s' % model_path, end_in_new_line=False):
+        with SimpleTimer(f'Writing model to {model_path}', end_in_new_line=False):
             open(model_path, 'w').write(yaml)
-        weights_filename = '%s_weights_%s.h5' % (self.__class__.__name__, time)
+        weights_filename = f'{self.__class__.__name__}_weights_{time}.h5'
         weights_path = os.path.join(SAVE_PATH, weights_filename)
-        with SimpleTimer('Writing weights to %s' % weights_path, end_in_new_line=False):
+        with SimpleTimer(f'Writing weights to {weights_path}', end_in_new_line=False):
             self.model.save_weights(weights_path)
 
         return model_path, weights_path
@@ -203,11 +203,11 @@ class SimpleRNN(_BaseClass):
     def _build_data(self):
         with open(TRAIN_PATH) as train_file:
             lines = train_file.readlines()
-        
+
         num_lines = len(lines)
         X = np.zeros([num_lines, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         y = np.zeros([num_lines, NUM_CLASSES])
-        
+
         cnt = 0
         class_cnt = [0] * 4
         for line in lines[1:]:
@@ -215,21 +215,20 @@ class SimpleRNN(_BaseClass):
             clause1 = clause1.split(SPLIT_SYMBOL)
             clause2 = clause2.split(SPLIT_SYMBOL)
             words = clause1 + clause2
-            embed = [embedding[w] for w in words if w in embedding]
-            if len(embed) > 0:
+            if embed := [embedding[w] for w in words if w in embedding]:
                 X[cnt, -len(embed):] = np.array(embed)
                 y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
                 cnt += 1
                 class_cnt[relation2int[relation]] += 1
-        
+
         X, y = X[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X, y = X[p], y[p]
-        
+
         global NUM_BATCHES
         if NUM_BATCHES == 0:
             NUM_BATCHES = cnt
-        
+
         return X, y, class_cnt
 
     def _build_model(self, verbose=True):
@@ -254,12 +253,12 @@ class SimpleRNN(_BaseClass):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
         if not os.path.exists(PREDICT_PATH):
             os.makedirs(PREDICT_PATH)
-        pred_path = os.path.join(PREDICT_PATH, 'submission_%s.csv' % time)
+        pred_path = os.path.join(PREDICT_PATH, f'submission_{time}.csv')
 
-        with SimpleTimer('Writing predictions to %s' % pred_path, end_in_new_line=False):
+        with SimpleTimer(f'Writing predictions to {pred_path}', end_in_new_line=False):
             with open(TEST_PATH) as test_file, open(pred_path, 'w') as output_file:
                 output_file.write('Id,Relation\n')
-                
+
                 lines = test_file.readlines()
                 for line in lines[1:]:
                     id_, clause1, clause2 = line.strip().split(',')
@@ -269,15 +268,15 @@ class SimpleRNN(_BaseClass):
                     embed = [embedding[w] for w in words if w in embedding]
 
                     X = np.zeros([1, MAX_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                    if len(embed) > 0:
+                    if embed:
                         X[0, -len(embed):] = np.array(embed)
                     else:
-                        print('Warning: for id = %s, len(embedi) == 0 for some i = 1, 2.' % id_)
-                    
+                        print(f'Warning: for id = {id_}, len(embedi) == 0 for some i = 1, 2.')
+
                     y_prob = self.model.predict(X)
                     y = np.argmax(y_prob)
                     relation = int2relation[y]
-                    
+
                     output_file.write('%s,%s\n' % (id_, relation))
 
 
@@ -296,12 +295,12 @@ class ConcatRNN(_BaseClass):
     def _build_data(self):
         with open(TRAIN_PATH) as train_file:
             lines = train_file.readlines()
-        
+
         num_lines = len(lines)
         X1 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         X2 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         y = np.zeros([num_lines, NUM_CLASSES])
-        
+
         cnt = 0
         class_cnt = [0] * 4
         for line in lines[1:]:
@@ -312,24 +311,24 @@ class ConcatRNN(_BaseClass):
             embed2 = [embedding[w] for w in clause2 if w in embedding]
             embed1.reverse()
             embed2.reverse()
-            
-            if len(embed1) > 0:
+
+            if embed1:
                 X1[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed1):] = np.array(embed1)
-            if len(embed2) > 0:
+            if embed2:
                 X2[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed2):] = np.array(embed2)
-            
+
             y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
             cnt += 1
             class_cnt[relation2int[relation]] += 1
-        
+
         X1, X2, y = X1[:cnt], X2[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, y = X1[p], X2[p], y[p]
-        
+
         global NUM_BATCHES
         if NUM_BATCHES == 0:
             NUM_BATCHES = cnt
-        
+
         return X1, X2, y, class_cnt
 
     def _build_model(self, verbose=True):
@@ -358,12 +357,12 @@ class ConcatRNN(_BaseClass):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
         if not os.path.exists(PREDICT_PATH):
             os.makedirs(PREDICT_PATH)
-        pred_path = os.path.join(PREDICT_PATH, 'submission_%s.csv' % time)
+        pred_path = os.path.join(PREDICT_PATH, f'submission_{time}.csv')
 
-        with SimpleTimer('Writing predictions to %s' % pred_path, end_in_new_line=False):
+        with SimpleTimer(f'Writing predictions to {pred_path}', end_in_new_line=False):
             with open(TEST_PATH) as test_file, open(pred_path, 'w') as output_file:
                 output_file.write('Id,Relation\n')
-                
+
                 lines = test_file.readlines()
                 for line in lines[1:]:
                     id_, clause1, clause2 = line.strip().split(',')
@@ -376,15 +375,15 @@ class ConcatRNN(_BaseClass):
 
                     X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                     X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
-                    if len(embed1) > 0:
+                    if embed1:
                         X1[0, -len(embed1):] = np.array(embed1)
-                    if len(embed2) > 0:
+                    if embed2:
                         X2[0, -len(embed2):] = np.array(embed2)
-                    
+
                     y_prob = self.model.predict([X1, X2])
                     y = np.argmax(y_prob)
                     relation = int2relation[y]
-                    
+
                     output_file.write('%s,%s\n' % (id_, relation))
 
 
@@ -403,13 +402,13 @@ class ConcatCountRNN(_BaseClass):
     def _build_data(self):
         with open(TRAIN_PATH) as train_file:
             lines = train_file.readlines()
-        
+
         num_lines = len(lines)
         X1 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         X2 = np.zeros([num_lines, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
         X3 = np.zeros([num_lines, 1 + self.lang.NUM_TOP_WORDS*NUM_CLASSES])
         y = np.zeros([num_lines, NUM_CLASSES])
-        
+
         cnt = 0
         class_cnt = [0] * 4
         for line in lines[1:]:
@@ -420,27 +419,27 @@ class ConcatCountRNN(_BaseClass):
             embed2 = [embedding[w] for w in clause2 if w in embedding]
             embed1.reverse()
             embed2.reverse()
-            
-            if len(embed1) > 0:
+
+            if embed1:
                 X1[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed1):] = np.array(embed1)
-            if len(embed2) > 0:
+            if embed2:
                 X2[cnt, MAX_SINGLE_REVIEW_LENGTH-len(embed2):] = np.array(embed2)
-            
+
             for word in clause1 + clause2:
                 X3[cnt, self.lang.topword2index.get(word, 0)] += 1
-            
+
             y[cnt] = onehot(NUM_CLASSES, relation2int[relation])
             cnt += 1
             class_cnt[relation2int[relation]] += 1
-        
+
         X1, X2, X3, y = X1[:cnt], X2[:cnt], X3[:cnt], y[:cnt]
         p = np.random.permutation(cnt)
         X1, X2, X3, y = X1[p], X2[p], X3[p], y[p]
-        
+
         global NUM_BATCHES
         if NUM_BATCHES == 0:
             NUM_BATCHES = cnt
-        
+
         return X1, X2, X3, y, class_cnt
 
     def _build_model(self, verbose=True):
@@ -471,12 +470,12 @@ class ConcatCountRNN(_BaseClass):
         time = arrow.now('Asia/Taipei').format('YYYYMMDD_HH:mm:ss')
         if not os.path.exists(PREDICT_PATH):
             os.makedirs(PREDICT_PATH)
-        pred_path = os.path.join(PREDICT_PATH, 'submission_%s.csv' % time)
+        pred_path = os.path.join(PREDICT_PATH, f'submission_{time}.csv')
 
-        with SimpleTimer('Writing predictions to %s' % pred_path, end_in_new_line=False):
+        with SimpleTimer(f'Writing predictions to {pred_path}', end_in_new_line=False):
             with open(TEST_PATH) as test_file, open(pred_path, 'w') as output_file:
                 output_file.write('Id,Relation\n')
-                
+
                 lines = test_file.readlines()
                 for line in lines[1:]:
                     id_, clause1, clause2 = line.strip().split(',')
@@ -490,19 +489,19 @@ class ConcatCountRNN(_BaseClass):
                     X1 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                     X2 = np.zeros([1, MAX_SINGLE_REVIEW_LENGTH, EMBEDDING_VECTOR_LENGTH])
                     X3 = np.zeros([1, 1 + self.lang.NUM_TOP_WORDS*NUM_CLASSES])
-                    
-                    if len(embed1) > 0:
+
+                    if embed1:
                         X1[0, -len(embed1):] = np.array(embed1)
-                    if len(embed2) > 0:
+                    if embed2:
                         X2[0, -len(embed2):] = np.array(embed2)
-                    
+
                     for word in clause1 + clause2:
                         X3[0, self.lang.topword2index.get(word, 0)] += 1
 
                     y_prob = self.model.predict([X1, X2, X3])
                     y = np.argmax(y_prob)
                     relation = int2relation[y]
-                    
+
                     output_file.write('%s,%s\n' % (id_, relation))
 
 
